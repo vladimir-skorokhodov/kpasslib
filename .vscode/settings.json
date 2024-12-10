@@ -1,0 +1,27 @@
+{
+    "[dart]": {
+        "editor.defaultFormatter": "Dart-Code.dart-code",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "cSpell.diagnosticLevel": "Hint",
+    "cSpell.words": [
+        "Chacha",
+        "Encryptor",
+        "Hmac",
+        "homebanking",
+        "Kdbx",
+        "kpasslib",
+        "keyx",
+        "kibi",
+        "mebi",
+        "pointycastle",
+        "Skorokhodov",
+        "sublist",
+        "база",
+        "паролей",
+        "пароль"
+    ]
+}
