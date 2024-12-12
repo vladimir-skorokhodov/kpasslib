@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:core';
-import 'dart:io';
 
+import 'package:archive/archive.dart';
 import 'package:collection/collection.dart';
 import 'package:kpasslib/kpasslib.dart';
 import 'package:xml/xml.dart';
@@ -522,7 +522,7 @@ class KdbxDatabase {
     CryptoUtils.wipeData(cipherKey);
 
     if (header.compression == CompressionAlgorithm.gzip) {
-      data = zlib.decode(data);
+      data = ZLibDecoder().decodeBytes(data);
     }
 
     reader = BytesReader(data);
@@ -558,7 +558,7 @@ class KdbxDatabase {
     CryptoUtils.wipeData(innerHeaderData);
 
     if (header.compression == CompressionAlgorithm.gzip) {
-      data = gzip.encode(data);
+      data = GZipEncoder().encodeBytes(data);
     }
 
     data = _transformData(
@@ -635,7 +635,7 @@ class KdbxDatabase {
     data = HashedBlockTransform.decrypt(data);
 
     if (header.compression == CompressionAlgorithm.gzip) {
-      data = gzip.decode(data);
+      data = GZipDecoder().decodeBytes(data);
     }
 
     return utf8.decode(data);
@@ -645,7 +645,7 @@ class KdbxDatabase {
     var data = utf8.encode(xml.toXmlString()).toList();
 
     if (header.compression == CompressionAlgorithm.gzip) {
-      data = gzip.encode(data);
+      data = GZipEncoder().encodeBytes(data);
     }
 
     data = HashedBlockTransform.encrypt(data);

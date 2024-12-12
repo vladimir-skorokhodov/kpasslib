@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
 import 'package:kpasslib/kpasslib.dart';
@@ -36,7 +36,7 @@ abstract class KdbxBinary {
         XmlUtils.getBooleanAttribute(element, XmlAttr.compressed);
 
     if (compressed) {
-      bytes = gzip.decode(bytes);
+      bytes = GZipDecoder().decodeBytes(bytes);
     }
 
     if (XmlUtils.getBooleanAttribute(element, XmlAttr.protected)) {
@@ -123,7 +123,9 @@ class PlainBinary extends KdbxDataBinary {
   }) {
     return super._toXml(id: id)
       ..setAttribute(XmlAttr.compressed, compressed ? 'True' : 'False')
-      ..innerText = base64.encode(compressed ? gzip.encode(data) : data);
+      ..innerText = base64.encode(
+        compressed ? GZipEncoder().encodeBytes(data) : data,
+      );
   }
 }
 

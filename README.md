@@ -2,8 +2,9 @@
 
 [![Dart](https://github.com/korovan-software/kpasslib/actions/workflows/dart.yml/badge.svg)](https://github.com/korovan-software/kpasslib/actions/workflows/dart.yml)
 [![Coverage Status](https://coveralls.io/repos/github/korovan-software/kpasslib/badge.svg?branch=main)](https://coveralls.io/github/korovan-software/kpasslib?branch=main)
+[![Pub](https://img.shields.io/pub/v/kpasslib.svg)](https://pub.dev/packages/kpasslib)
 
-KPassLib is a Dart library for reading modifying and writing [KeePass](https://keepass.info) v2 databases (KDBX version 3 or 4).
+KPassLib is a Dart library for reading, modifying and writing [KeePass](https://keepass.info) v2 databases (KDBX version 3 or 4).
 Ported and refactored from [KdbxWeb](https://github.com/keeweb/kdbxweb).
 
 ## Features
