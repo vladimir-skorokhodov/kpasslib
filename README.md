@@ -31,10 +31,12 @@ final credentials = KdbxCredentials(
   keyData: demoKey,
   challengeResponse: challengeResponse,
 );
+
 final db1 = KdbxDatabase.fromBytes(
   data: TestResources.demoKdbx,
   credentials: credentials,
 );
+
 final db2 = KdbxDatabase.fromXmlString(
   xmlString: xml,
   credentials: credentials,
@@ -63,9 +65,11 @@ final db = KdbxDatabase.fromBytes(
     password: ProtectedData.fromString('demo'),
   ),
 );
+
 db.header.credentials = KdbxCredentials(
   password: ProtectedData.fromString('new password'),
 );
+
 final data = db.save();
 ```
 
@@ -76,10 +80,12 @@ final db = KdbxDatabase.create(
   credentials: credentials,
   name: 'Example',
 );
+
 final subGroup = db.createGroup(
   parent: db.root,
   name: 'Subgroup',
 );
+
 final entry = db.createEntry(parent: subGroup);
 ```
 
@@ -92,10 +98,10 @@ db.cleanup(
   binaries: true,
 );
 
-// upgrade to the latest version (currently KDBX 4)
+// upgrade to the latest version (currently is KDBX 4.1)
 db.upgrade();
 
-// downgrade to KDBX 3
+// downgrade to KDBX 3.1
 db.version = (3, 1);
 
 // set KDF to AES

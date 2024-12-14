@@ -11,3 +11,7 @@
 ## 1.0.2
 
 - Support Web platform.
+
+## 1.0.3
+
+- Removed _meta_ dependency.
