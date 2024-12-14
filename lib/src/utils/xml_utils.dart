@@ -112,7 +112,7 @@ abstract final class XmlUtils {
       return base64.encode(value);
     } else if (value is KdbxUuid) {
       return value.string;
-    } else if (value is Icon) {
+    } else if (value is KdbxIcon) {
       return value.value.toString();
     } else if (value is List<String>) {
       return value.fold(

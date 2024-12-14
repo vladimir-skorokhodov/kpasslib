@@ -15,3 +15,7 @@
 ## 1.0.3
 
 - Removed _meta_ dependency.
+
+## 1.0.4
+
+- Rename _Icon_ enum to _KdbxIcon_.

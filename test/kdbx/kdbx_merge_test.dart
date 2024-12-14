@@ -420,7 +420,7 @@ void main() {
       final grp = remote.root;
       grp.name = 'root1';
       grp.notes = 'notes1';
-      grp.icon = Icon.fromInt(1);
+      grp.icon = KdbxIcon.fromInt(1);
       grp.customIcon = ID.icon2;
       grp.times.modification = KdbxTime(DT.upd2);
       grp.isExpanded = true;
@@ -534,7 +534,7 @@ void main() {
       final grp = db.root;
       grp.name = 'root1';
       grp.notes = 'notes1';
-      grp.icon = Icon.fromInt(1);
+      grp.icon = KdbxIcon.fromInt(1);
       grp.customIcon = ID.icon2;
       grp.times.modification = KdbxTime(DT.upd2);
       grp.isExpanded = true;
@@ -948,7 +948,7 @@ void main() {
       final binary = <int>[];
 
       final entry = remote.root.entries.first;
-      entry.icon = Icon.fromInt(21);
+      entry.icon = KdbxIcon.fromInt(21);
       entry.foreground = '#aa0000';
       entry.background = '#00aa00';
       entry.overrideUrl = '1234';
@@ -1013,7 +1013,7 @@ void main() {
       final binary = <int>[];
 
       final entry = remote.root.entries.first;
-      entry.icon = Icon.fromInt(21);
+      entry.icon = KdbxIcon.fromInt(21);
       entry.foreground = '#aa0000';
       entry.background = '#00aa00';
       entry.overrideUrl = '1234';
@@ -1050,7 +1050,7 @@ void main() {
       final binary = <int>[];
 
       final entry = db.root.entries.first;
-      entry.icon = Icon.fromInt(21);
+      entry.icon = KdbxIcon.fromInt(21);
       entry.foreground = '#aa0000';
       entry.background = '#00aa00';
       entry.overrideUrl = '1234';

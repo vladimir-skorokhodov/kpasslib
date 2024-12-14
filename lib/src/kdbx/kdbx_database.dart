@@ -245,7 +245,7 @@ class KdbxDatabase {
   KdbxGroup createGroup({
     required KdbxGroup parent,
     required String name,
-    Icon icon = Icon.folder,
+    KdbxIcon icon = KdbxIcon.folder,
   }) {
     final subGroup = KdbxGroup.create(
       name: name,
@@ -262,7 +262,7 @@ class KdbxDatabase {
   /// Creates a new entry with [icon] to a [parent].
   KdbxEntry createEntry({
     required KdbxGroup parent,
-    Icon icon = Icon.folder,
+    KdbxIcon icon = KdbxIcon.folder,
   }) {
     final entry = KdbxEntry.create(
       parent: parent,
@@ -727,7 +727,7 @@ class KdbxDatabase {
     if (_groups.isEmpty) {
       _groups.add(KdbxGroup.create(
         name: name,
-        icon: Icon.folderOpen,
+        icon: KdbxIcon.folderOpen,
         id: KdbxUuid.random(),
       ));
     }
@@ -737,7 +737,7 @@ class KdbxDatabase {
   KdbxGroup _createRecycleBin() {
     final recycleBin = KdbxGroup.create(
       name: Defaults.recycleBinName,
-      icon: Icon.trashBin,
+      icon: KdbxIcon.trashBin,
       id: KdbxUuid.random(prohibited: root.allItems.map((e) => e.uuid).toSet()),
       parent: root,
       enableAutoType: false,

@@ -182,7 +182,7 @@ class KdbxEntry extends KdbxItem {
     required KdbxUuid id,
   }) {
     final entry = KdbxEntry._(id);
-    entry.icon = Icon.key;
+    entry.icon = KdbxIcon.key;
     entry.times = KdbxTimes();
     entry.parent = parent;
 
@@ -416,7 +416,7 @@ class KdbxEntry extends KdbxItem {
       case XmlElem.uuid:
         uuid = KdbxUuid.fromString(node.innerText);
       case XmlElem.icon:
-        icon = Icon.fromInt(int.tryParse(node.innerText) ?? 0);
+        icon = KdbxIcon.fromInt(int.tryParse(node.innerText) ?? 0);
       case XmlElem.customIconID:
         customIcon = KdbxUuid.fromString(node.innerText);
       case XmlElem.fgColor:
