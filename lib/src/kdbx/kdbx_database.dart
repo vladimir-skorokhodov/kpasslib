@@ -113,10 +113,10 @@ class KdbxDatabase {
   }
 
   /// Loads a [KdbxDatabase] from [data] with [credentials].
-  factory KdbxDatabase.fromBytes({
+  static Future<KdbxDatabase> fromBytes({
     required List<int> data,
     required KdbxCredentials credentials,
-  }) {
+  }) async {
     final reader = BytesReader(data);
     final header = KdbxHeader.fromBytes(
       credentials: credentials,
@@ -151,12 +151,12 @@ class KdbxDatabase {
   }
 
   /// Saves the database to a bytes list.
-  List<int> save() {
+  Future<List<int>> save() async {
     header.generateSalts();
     final version = header.version.$1;
 
     return header.bytes +
-        switch (version) {
+        await switch (version) {
           3 => _v3Bytes,
           4 => _v4Bytes,
           _ => throw UnsupportedValueError('bad version: $version')
@@ -245,7 +245,7 @@ class KdbxDatabase {
   KdbxGroup createGroup({
     required KdbxGroup parent,
     required String name,
-    Icon icon = Icon.folder,
+    KdbxIcon icon = KdbxIcon.folder,
   }) {
     final subGroup = KdbxGroup.create(
       name: name,
@@ -262,7 +262,7 @@ class KdbxDatabase {
   /// Creates a new entry with [icon] to a [parent].
   KdbxEntry createEntry({
     required KdbxGroup parent,
-    Icon icon = Icon.folder,
+    KdbxIcon icon = KdbxIcon.folder,
   }) {
     final entry = KdbxEntry.create(
       parent: parent,
@@ -473,11 +473,11 @@ class KdbxDatabase {
     return newEntry;
   }
 
-  static KdbxDatabase _loadV3({
+  static Future<KdbxDatabase> _loadV3({
     required BytesReader reader,
     required KdbxHeader header,
-  }) {
-    final xml = XmlDocument.parse(_decryptXmlV3(
+  }) async {
+    final xml = XmlDocument.parse(await _decryptXmlV3(
       bytes: reader.readBytesToEnd(),
       header: header,
     ));
@@ -488,10 +488,10 @@ class KdbxDatabase {
     );
   }
 
-  static KdbxDatabase _loadV4({
+  static Future<KdbxDatabase> _loadV4({
     required BytesReader reader,
     required KdbxHeader header,
-  }) {
+  }) async {
     final headerBytes = reader.past;
 
     final expectedHeaderSha = reader.readBytes(header.hash.length);
@@ -512,7 +512,7 @@ class KdbxDatabase {
     );
     CryptoUtils.wipeData(hmacKey);
 
-    var data = _transformData(
+    var data = await _transformData(
       header: header,
       data: content,
       cipherKey: cipherKey,
@@ -536,13 +536,12 @@ class KdbxDatabase {
     return _xmlToDB(header: header, xml: xml, binaryTime: true);
   }
 
-  List<int> get _v3Bytes {
+  Future<List<int>> get _v3Bytes {
     final xml = _buildXml(exportXml: false, binaryTime: false);
-    final data = _getXmlV3Bytes(xml);
-    return data;
+    return _getXmlV3Bytes(xml);
   }
 
-  List<int> get _v4Bytes {
+  Future<List<int>> get _v4Bytes async {
     final xml = _buildXml(exportXml: false, binaryTime: true);
 
     final (cipherKey, hmacKey, hmac) = header.computeKeysV4();
@@ -561,7 +560,7 @@ class KdbxDatabase {
       data = GZipEncoder().encodeBytes(data);
     }
 
-    data = _transformData(
+    data = await _transformData(
       header: header,
       data: data,
       cipherKey: cipherKey,
@@ -618,12 +617,12 @@ class KdbxDatabase {
       );
   }
 
-  static String _decryptXmlV3({
+  static Future<String> _decryptXmlV3({
     required List<int> bytes,
     required KdbxHeader header,
-  }) {
-    final masterKey = header.masterKeyV3;
-    var data = _transformData(
+  }) async {
+    final masterKey = await header.masterKeyV3;
+    var data = await _transformData(
       header: header,
       data: bytes,
       cipherKey: masterKey,
@@ -641,7 +640,7 @@ class KdbxDatabase {
     return utf8.decode(data);
   }
 
-  List<int> _getXmlV3Bytes(XmlDocument xml) {
+  Future<List<int>> _getXmlV3Bytes(XmlDocument xml) async {
     var data = utf8.encode(xml.toXmlString()).toList();
 
     if (header.compression == CompressionAlgorithm.gzip) {
@@ -657,8 +656,8 @@ class KdbxDatabase {
 
     data = ssb + data;
 
-    final masterKey = header.masterKeyV3;
-    data = _transformData(
+    final masterKey = await header.masterKeyV3;
+    data = await _transformData(
       header: header,
       data: data,
       cipherKey: masterKey,
@@ -690,12 +689,12 @@ class KdbxDatabase {
     return data.slice(length);
   }
 
-  static List<int> _transformData({
+  static Future<List<int>> _transformData({
     required KdbxHeader header,
     required List<int> data,
     required List<int> cipherKey,
     required encrypt,
-  }) {
+  }) async {
     final cipherId = header.dataCipherUuid;
     if (cipherId == null) {
       throw FileCorruptedError('no cipher id');
@@ -706,20 +705,24 @@ class KdbxDatabase {
       throw FileCorruptedError('no encryption IV');
     }
 
-    return switch (cipherId.string) {
-      CipherId.aes => CryptoUtils.transformAes(
-          data: data,
-          key: cipherKey,
-          iv: iv,
-          encrypt: encrypt,
-        ),
-      CipherId.chaCha20 => CryptoUtils.transformChaCha20(
-          data: data,
-          key: cipherKey,
-          iv: iv,
-        ),
-      _ => throw UnsupportedValueError('unsupported cipher')
-    };
+    try {
+      return await switch (cipherId.string) {
+        CipherId.aes => CryptoUtils.transformAes(
+            data: data,
+            key: cipherKey,
+            iv: iv,
+            encrypt: encrypt,
+          ),
+        CipherId.chaCha20 => CryptoUtils.transformChaCha20(
+            data: data,
+            key: cipherKey,
+            iv: iv,
+          ),
+        _ => throw UnsupportedValueError('unsupported cipher')
+      };
+    } catch (_) {
+      throw InvalidCredentialsError('invalid key');
+    }
   }
 
   /// Creates a root group, if it is absent.
@@ -727,7 +730,7 @@ class KdbxDatabase {
     if (_groups.isEmpty) {
       _groups.add(KdbxGroup.create(
         name: name,
-        icon: Icon.folderOpen,
+        icon: KdbxIcon.folderOpen,
         id: KdbxUuid.random(),
       ));
     }
@@ -737,7 +740,7 @@ class KdbxDatabase {
   KdbxGroup _createRecycleBin() {
     final recycleBin = KdbxGroup.create(
       name: Defaults.recycleBinName,
-      icon: Icon.trashBin,
+      icon: KdbxIcon.trashBin,
       id: KdbxUuid.random(prohibited: root.allItems.map((e) => e.uuid).toSet()),
       parent: root,
       enableAutoType: false,

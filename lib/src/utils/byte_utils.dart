@@ -122,5 +122,5 @@ class BytesWriter {
   writeBytes(List<int> bytes) => _builder.add(bytes);
 
   ///The result bytes sequence.
-  Uint8List get bytes => _builder.toBytes();
+  Uint8List get bytes => _builder.toBytes(); //TODO: return without copy
 }

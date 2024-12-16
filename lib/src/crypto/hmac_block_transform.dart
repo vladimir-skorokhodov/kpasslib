@@ -2,8 +2,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
-import 'package:pointycastle/export.dart';
 
 import '../utils/byte_utils.dart';
 
@@ -64,7 +64,7 @@ abstract final class HmacBlockTransform {
     final writer = BytesWriter();
     writer.writeUint64(index);
     writer.writeBytes(key);
-    return SHA512Digest().process(writer.bytes);
+    return sha512.convert(writer.bytes).bytes;
   }
 
   static List<int> _getBlockHmac(
@@ -72,15 +72,12 @@ abstract final class HmacBlockTransform {
     int index,
     List<int> data,
   ) {
-    final hmac = HMac(SHA256Digest(), SHA256Digest().byteLength);
-    final blockKey = getHmacKey(key: key, index: index);
-    hmac.init(KeyParameter(Uint8List.fromList(blockKey)));
-
     final writer = BytesWriter();
     writer.writeUint64(index);
     writer.writeUint32(data.length);
     writer.writeBytes(data);
 
-    return hmac.process(Uint8List.fromList(writer.bytes));
+    final blockKey = getHmacKey(key: key, index: index);
+    return Hmac(sha256, blockKey).convert(writer.bytes).bytes;
   }
 }
