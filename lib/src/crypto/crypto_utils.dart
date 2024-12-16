@@ -1,7 +1,6 @@
 import 'dart:math';
-import 'dart:typed_data';
 
-import 'package:pointycastle/export.dart';
+import 'package:cryptography_plus/cryptography_plus.dart';
 
 /// Encryption utility functions
 abstract final class CryptoUtils {
@@ -33,48 +32,44 @@ abstract final class CryptoUtils {
       List<int>.generate(data.length, (i) => data[i] ^ salt[i]);
 
   /// Returns result of [data] transformation with AES algorithm.
-  static List<int> transformAes({
+  static Future<List<int>> transformAes({
     required List<int> data,
     required List<int> key,
     required List<int> iv,
     bool encrypt = true,
-  }) {
-    final cbc = CBCBlockCipher(AESEngine())
-      ..init(
-        encrypt,
-        ParametersWithIV(
-          KeyParameter(Uint8List.fromList(key)),
-          Uint8List.fromList(iv),
-        ),
+  }) async {
+    final cbc = AesCbc.with256bits(macAlgorithm: MacAlgorithm.empty);
+    final secretKey = await cbc.newSecretKeyFromBytes(key);
+
+    if (encrypt) {
+      final box = await cbc.encrypt(
+        data,
+        secretKey: secretKey,
+        nonce: iv,
       );
-
-    final pad = -data.length % cbc.blockSize;
-    final inp = Uint8List.fromList(data + List.filled(pad, pad));
-    final out = Uint8List(inp.length);
-
-    var offset = 0;
-    while (offset < inp.length) {
-      offset += cbc.processBlock(inp, offset, out, offset);
+      return box.cipherText;
+    } else {
+      return await cbc.decrypt(
+        SecretBox(data, nonce: iv, mac: Mac.empty),
+        secretKey: secretKey,
+      );
     }
-
-    return out;
   }
 
   /// Returns result of [data] transformation with ChaCha20 algorithm.
-  static List<int> transformChaCha20({
+  static Future<List<int>> transformChaCha20({
     required List<int> data,
     required List<int> key,
     required List<int> iv,
-  }) {
-    final chacha = ChaCha7539Engine()
-      ..init(
-        true,
-        ParametersWithIV(
-          KeyParameter(Uint8List.fromList(key)),
-          Uint8List.fromList(iv),
-        ),
-      );
+  }) async {
+    final chacha = Chacha20(macAlgorithm: MacAlgorithm.empty);
+    final secretKey = await chacha.newSecretKeyFromBytes(key);
+    final box = await chacha.encrypt(
+      data,
+      secretKey: secretKey,
+      nonce: iv,
+    );
 
-    return chacha.process(Uint8List.fromList(data));
+    return box.cipherText;
   }
 }

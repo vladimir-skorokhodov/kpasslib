@@ -80,7 +80,7 @@ void main() {
           KdbxUuid.fromBytes(
                   newHeader.kdfParameters!.get('\$UUID') as List<int>)
               .string,
-          KdfId.argon2);
+          KdfId.argon2d);
       expect(newHeader.kdfParameters?.get('S'), [6, 6, 6, 6]);
       expect(newHeader.kdfParameters?.get('P'), 1);
       expect(newHeader.kdfParameters?.get('V'), 0x13);

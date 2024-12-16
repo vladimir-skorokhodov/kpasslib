@@ -2,8 +2,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
-import 'package:pointycastle/export.dart';
 
 import '../utils/byte_utils.dart';
 
@@ -20,7 +20,7 @@ abstract final class HashedBlockTransform {
       final size = min(DataSize.mebi, reader.bytesLeft);
       final data = Uint8List.fromList(reader.readBytes(size));
       writer.writeUint32(index++);
-      writer.writeBytes(SHA256Digest().process(data));
+      writer.writeBytes(sha256.convert(data).bytes);
       writer.writeUint32(size);
       writer.writeBytes(data);
     }
@@ -45,7 +45,7 @@ abstract final class HashedBlockTransform {
       final data = Uint8List.fromList(reader.readBytes(size));
       builder.add(data);
 
-      if (!ListEquality().equals(hash, SHA256Digest().process(data))) {
+      if (!ListEquality().equals(hash, sha256.convert(data).bytes)) {
         throw FileCorruptedError('invalid block hash');
       }
     }

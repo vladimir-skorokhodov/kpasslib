@@ -149,7 +149,7 @@ abstract class KdbxItem {
   var times = KdbxTimes();
 
   /// The standart icon.
-  Icon icon = Icon.key;
+  KdbxIcon icon = KdbxIcon.key;
 
   /// The custom icon ID.
   KdbxUuid? customIcon;

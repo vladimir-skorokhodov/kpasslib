@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
-import 'package:pointycastle/export.dart';
 import 'package:xml/xml.dart';
 
 import '../crypto/crypto_utils.dart';
@@ -52,7 +51,7 @@ class KdbxCredentials {
       allBytes.addAll(challengeResp);
     }
 
-    var hash = SHA256Digest().process(Uint8List.fromList(allBytes));
+    var hash = sha256.convert(allBytes).bytes;
     CryptoUtils.wipeData(allBytes);
     return hash;
   }
@@ -65,7 +64,7 @@ class KdbxCredentials {
     }
 
     final result = response(challenge);
-    final hash = SHA256Digest().process(Uint8List.fromList(result));
+    final hash = sha256.convert(result).bytes;
     CryptoUtils.wipeData(result);
     return hash;
   }
@@ -92,7 +91,7 @@ class KdbxCredentials {
     if (version == 1) {
       data.innerText = base64.encode(bytes);
     } else {
-      final hash = SHA256Digest().process(Uint8List.fromList(bytes));
+      final hash = sha256.convert(bytes).bytes;
       final hashString = hex.encode(hash.sublist(0, 4)).toUpperCase();
       final slices = bytes.slices(4).slices(4);
       final keyString = slices
@@ -158,8 +157,7 @@ class KdbxCredentials {
               hex.decode(data.innerText.replaceAll(RegExp('\\s+'), ''));
           final keyFileDataHash = data.getAttribute(XmlAttr.hash);
           if (keyFileDataHash != null) {
-            final computedHash =
-                SHA256Digest().process(Uint8List.fromList(keyFileData));
+            final computedHash = sha256.convert(keyFileData).bytes;
             final computedHashStr = hex.encode(computedHash.sublist(0, 4));
             if (computedHashStr.toUpperCase() !=
                 keyFileDataHash.toUpperCase()) {
@@ -186,7 +184,7 @@ class KdbxCredentials {
       return ProtectedData.fromBytes(keyData);
     }
 
-    final hash = SHA256Digest().process(Uint8List.fromList(keyData));
+    final hash = sha256.convert(keyData).bytes;
     return ProtectedData.fromBytes(hash);
   }
 }

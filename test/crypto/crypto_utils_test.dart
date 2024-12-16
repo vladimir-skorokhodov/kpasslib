@@ -27,15 +27,19 @@ void main() {
       expect(decoded, data);
     });
 
-    test('Checks AES transformation', () {
+    test('Checks AES transformation', () async {
       final data = CryptoUtils.randomBytes(16);
-      final key = CryptoUtils.randomBytes(16);
+      final key = CryptoUtils.randomBytes(32);
       final iv = CryptoUtils.randomBytes(16);
-      final encoded =
-          CryptoUtils.transformAes(data: data, key: key, iv: iv, encrypt: true);
+      final encoded = await CryptoUtils.transformAes(
+        data: data,
+        key: key,
+        iv: iv,
+        encrypt: true,
+      );
       expect(ListEquality().equals(encoded, data), false);
 
-      final decoded = CryptoUtils.transformAes(
+      final decoded = await CryptoUtils.transformAes(
         data: encoded,
         key: key,
         iv: iv,
@@ -44,18 +48,18 @@ void main() {
       expect(decoded, data);
     });
 
-    test('Checks ChaCha20 transformation', () {
+    test('Checks ChaCha20 transformation', () async {
       final data = CryptoUtils.randomBytes(32);
       final key = CryptoUtils.randomBytes(32);
       final iv = CryptoUtils.randomBytes(12);
-      final encoded = CryptoUtils.transformChaCha20(
+      final encoded = await CryptoUtils.transformChaCha20(
         data: data,
         key: key,
         iv: iv,
       );
       expect(ListEquality().equals(encoded, data), false);
 
-      final decoded = CryptoUtils.transformChaCha20(
+      final decoded = await CryptoUtils.transformChaCha20(
         data: encoded,
         key: key,
         iv: iv,

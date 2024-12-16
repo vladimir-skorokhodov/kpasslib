@@ -14,7 +14,7 @@ void main() {
     test('calls argon2 function', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -22,13 +22,13 @@ void main() {
           ),
           ('P', ParameterType.uInt32, 2),
           ('I', ParameterType.uInt64, 1),
-          ('M', ParameterType.uInt64, 4 * DataSize.kibi),
+          ('M', ParameterType.uInt64, 16 * DataSize.kibi),
           ('V', ParameterType.uInt32, 0x13)
         ]);
 
       final res = KeyEncryptorKdf.encrypt(data: data, parameters: params);
       expect(hex.encode(res),
-          '85c5ee3691db3f85a08c15a96f5348c7926a0cf82e38981f343f5eb5375389b9');
+          '37597075e9b6d90c492183bb56214b4d9eb04c4d0971fd11f929d1e4155dff32');
     });
 
     test('throws error for no uuid', () {
@@ -57,7 +57,7 @@ void main() {
     test('throws error for bad salt', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           ('S', ParameterType.bytes, List.filled(10, 0))
         ]);
 
@@ -71,7 +71,7 @@ void main() {
     test('throws error for bad parallelism', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -90,7 +90,7 @@ void main() {
     test('throws error for bad parallelism type', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -109,7 +109,7 @@ void main() {
     test('throws error for bad iterations', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -129,7 +129,7 @@ void main() {
     test('throws error for bad memory', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -150,7 +150,7 @@ void main() {
     test('throws error for bad version', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -172,7 +172,7 @@ void main() {
     test('throws error for secret key', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
@@ -195,7 +195,7 @@ void main() {
     test('throws error for assoc data', () {
       final params = ParametersMap()
         ..addAll([
-          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2)),
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
           (
             'S',
             ParameterType.bytes,
