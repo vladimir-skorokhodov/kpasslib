@@ -1,6 +1,6 @@
 name: kpasslib
 description: A Dart library for reading, modifying and writing KeePass v2 databases (KDBX version 3 or 4).
-version: 1.0.4
+version: 1.0.5
 repository: https://github.com/korovan-software/kpasslib
 
 environment:
@@ -14,5 +14,8 @@ dependencies:
   archive: ^4.0.1
   collection: ^1.18.0
   convert: ^3.1.1
+  crypto: ^3.0.6
+  cryptography_plus: ^2.7.1
+  hashlib: ^1.21.1
   pointycastle: ^3.9.0
   xml: ^6.2.2

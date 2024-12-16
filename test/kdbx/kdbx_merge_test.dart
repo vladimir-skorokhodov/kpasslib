@@ -56,7 +56,7 @@ abstract class Bin {
   static final icon2 = utf8.encode('icon2');
 }
 
-KdbxDatabase _getDb() => KdbxDatabase.fromBytes(
+Future<KdbxDatabase> _getDb() => KdbxDatabase.fromBytes(
     data: TestResources.mergeKdbx,
     credentials: KdbxCredentials(password: ProtectedData.fromString('demo')));
 
@@ -155,18 +155,18 @@ void main() {
       await TestResources.init();
     });
 
-    test('checks database structure', () {
-      expect(_getTestDb().isEqual(_getDb()), true);
+    test('checks database structure', () async {
+      expect(_getTestDb().isEqual(await _getDb()), true);
     });
 
-    test('merges itself', () {
-      final db = _getDb(), remote = _getDb();
+    test('merges itself', () async {
+      final db = await _getDb(), remote = await _getDb();
       db.merge(remote);
       expect(_getTestDb().isEqual(db), true);
     });
 
-    test('generates merge error when merging db without root', () {
-      final db = _getDb();
+    test('generates merge error when merging db without root', () async {
+      final db = await _getDb();
       final remote = KdbxDatabase.create(
           name: 'demo',
           credentials:
@@ -178,8 +178,8 @@ void main() {
               e is InvalidStateError && e.message.contains('no root group'))));
     });
 
-    test('generates merge error when merging another db', () {
-      final db = _getDb();
+    test('generates merge error when merging another db', () async {
+      final db = await _getDb();
       final remote = KdbxDatabase.create(
           name: 'demo',
           credentials:
@@ -192,9 +192,9 @@ void main() {
               e.message.contains('root group is different'))));
     });
 
-    test('merges deleted objects', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('merges deleted objects', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
       remote.deletedObjects[ID.eDel1] = KdbxTime(DT.upd2);
       db.merge(remote);
       expect(
@@ -204,9 +204,9 @@ void main() {
           true);
     });
 
-    test('merges metadata when remote is later', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('merges metadata when remote is later', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
       remote.meta.name = 'name1';
       remote.meta.nameChanged = KdbxTime(DT.upd2);
       remote.meta.description = 'desc1';
@@ -258,9 +258,9 @@ void main() {
       expect(testMeta.isEqual(db.meta), true);
     });
 
-    test('merges metadata when local is later', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('merges metadata when local is later', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
       db.meta.name = 'name1';
       db.meta.nameChanged = KdbxTime(DT.upd2);
       db.meta.description = 'desc1';
@@ -311,9 +311,9 @@ void main() {
       expect(testMeta.isEqual(db.meta), true);
     });
 
-    test('merges binaries', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('merges binaries', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final bin1 = PlainBinary(data: Bin.bin1, compressed: false);
       final bin2 = PlainBinary(data: Bin.bin2, compressed: false);
@@ -335,9 +335,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('merges custom icons', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('merges custom icons', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final d1 = DateTime.now();
       final d2 = d1.add(Duration(seconds: 1));
@@ -381,9 +381,9 @@ void main() {
       expect(testMeta.isEqual(db.meta), true);
     });
 
-    test('merges custom data', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('merges custom data', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final d1 = KdbxTime.now();
       final d2 = KdbxTime(d1.time!.add(Duration(seconds: 1)));
@@ -413,9 +413,9 @@ void main() {
       expect(testMeta.isEqual(db.meta), true);
     });
 
-    test('changes remote group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('changes remote group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final grp = remote.root;
       grp.name = 'root1';
@@ -447,9 +447,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('adds new remote group to root', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('adds new remote group to root', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final group = remote.createGroup(parent: remote.root, name: 'newgrp');
 
@@ -463,9 +463,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('adds new remote group to deep group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('adds new remote group to deep group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final group = remote.createGroup(
           parent: remote.root.groups[1].groups[0], name: 'newgrp');
@@ -480,9 +480,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes remote group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes remote group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final groupToRemove = remote.root.groups[1].groups[0];
       remote.move(item: groupToRemove);
@@ -495,9 +495,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves remote group to root', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves remote group to root', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final groupToMove = remote.root.groups[1].groups[0];
       remote.move(item: groupToMove, target: remote.root);
@@ -511,9 +511,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves remote group to deep group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves remote group to deep group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final groupToMove = remote.root.groups[1].groups[0];
       remote.move(item: groupToMove, target: remote.root.groups[3]);
@@ -527,9 +527,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('changes local group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('changes local group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final grp = db.root;
       grp.name = 'root1';
@@ -561,9 +561,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('adds new local group to root', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('adds new local group to root', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final group = db.createGroup(parent: remote.root, name: 'newgrp');
 
@@ -574,9 +574,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('adds new local group to deep group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('adds new local group to deep group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final group = db.createGroup(
         parent: db.root.groups[1].groups[0],
@@ -591,9 +591,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes local group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes local group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final groupToRemove = db.root.groups[1].groups[0];
       db.move(item: groupToRemove);
@@ -606,9 +606,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves local group to root', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves local group to root', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final groupToMove = db.root.groups[1].groups[0];
       db.move(item: groupToMove, target: db.root);
@@ -622,9 +622,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves local group to deep group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves local group to deep group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final groupToMove = db.root.groups[1].groups[0];
       db.move(item: groupToMove, target: db.root.groups[3]);
@@ -638,9 +638,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes group moved to subgroup of locally deleted group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes group moved to subgroup of locally deleted group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.move(
           item: remote.root.groups[1].groups[0],
@@ -657,9 +657,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes group moved to subgroup of remotely deleted group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes group moved to subgroup of remotely deleted group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.move(
           item: db.root.groups[1].groups[0],
@@ -675,9 +675,10 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes group moved out of subgroup of locally deleted group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes group moved out of subgroup of locally deleted group',
+        () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.move(
           item: remote.root.groups[1].groups[0],
@@ -693,9 +694,10 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes group moved out of subgroup of remotely deleted group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes group moved out of subgroup of remotely deleted group',
+        () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.move(
           item: db.root.groups[1].groups[0],
@@ -711,9 +713,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves group moved to locally moved group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves group moved to locally moved group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.move(
           item: remote.root.groups[1].groups[0],
@@ -733,9 +735,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves group moved to remotely moved group', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves group moved to remotely moved group', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.move(item: remote.root.groups[3], target: remote.root.groups[2]);
 
@@ -755,9 +757,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves group back', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves group back', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       var group4 = db.createGroup(parent: db.root, name: 'g4');
       group4.uuid = ID.g4;
@@ -793,9 +795,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves group forward', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves group forward', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       var group4 = db.createGroup(parent: db.root, name: 'g4');
       group4.uuid = ID.g4;
@@ -831,9 +833,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('inserts group at start', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('inserts group at start', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final group4 = remote.createGroup(
         parent: remote.root,
@@ -856,9 +858,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('adds remote entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('adds remote entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final entry = remote.createEntry(parent: remote.root);
       entry.fields['added'] = KdbxTextField.fromText(text: 'field');
@@ -877,9 +879,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes remote entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes remote entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.move(item: remote.root.entries[0]);
 
@@ -893,9 +895,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes local entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes local entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.move(item: db.root.entries[0]);
 
@@ -909,9 +911,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves remote entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves remote entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.move(item: remote.root.entries[0], target: remote.root.groups[1]);
 
@@ -925,9 +927,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('moves local entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('moves local entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.move(item: db.root.entries[0], target: db.root.groups[1]);
 
@@ -941,9 +943,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('changes remote entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('changes remote entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final binary = <int>[];
 
@@ -1006,9 +1008,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('ignores remote entry with same date', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('ignores remote entry with same date', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final binary = <int>[];
 
@@ -1043,9 +1045,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('changes local entry', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('changes local entry', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final binary = <int>[];
 
@@ -1108,9 +1110,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes history state remotely', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes history state remotely', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.root.entries.first.removeFromHistory(start: 0);
 
@@ -1121,9 +1123,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes history state locally', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes history state locally', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.root.entries.first.removeFromHistory(start: 0);
 
@@ -1134,9 +1136,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes all history states remotely', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes all history states remotely', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       remote.root.entries.first.removeFromHistory(start: 0, end: 2);
 
@@ -1147,9 +1149,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('deletes all history states locally', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('deletes all history states locally', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.root.entries.first.removeFromHistory(start: 0, end: 2);
 
@@ -1160,9 +1162,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('adds past history state remotely', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('adds past history state remotely', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final remoteEntry = remote.root.entries.first;
       final entry = db.root.entries.first;
@@ -1188,9 +1190,9 @@ void main() {
 
     test(
         'adds future history state remotely and converts current state into history',
-        () {
-      final db = _getDb();
-      final remote = _getDb();
+        () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final remoteEntry = remote.root.entries.first;
       final entry = db.root.entries.first;
@@ -1225,9 +1227,9 @@ void main() {
     });
 
     test('adds history state locally and converts remote state into history',
-        () {
-      final db = _getDb();
-      final remote = _getDb();
+        () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final remoteEntry = remote.root.entries.first;
       final entry = db.root.entries.first;
@@ -1262,9 +1264,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('can merge with old entry state without state deletions', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('can merge with old entry state without state deletions', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       final entry = db.root.entries.first;
       entry.times.modification = KdbxTime(DT.upd4);
@@ -1296,9 +1298,9 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('saves and restores edit state', () {
-      final db = _getDb();
-      final remote = _getDb();
+    test('saves and restores edit state', () async {
+      final db = await _getDb();
+      final remote = await _getDb();
 
       db.root.entries.first.removeFromHistory(start: 0);
       db.meta.historyMaxItems = 500;

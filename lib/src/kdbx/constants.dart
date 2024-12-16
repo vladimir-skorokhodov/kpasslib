@@ -126,7 +126,6 @@ abstract final class DataSize {
 
 /// Identifier of KDF.
 abstract final class KdfId {
-  static const argon2 = '72Nt34wpREuR96mkA+MKDA==';
   static const argon2d = '72Nt34wpREuR96mkA+MKDA==';
   static const argon2id = 'nimLGVbbR3OyPfw+xvCh5g==';
   static const aes = 'ydnzmmKKRGC/dA0IwYpP6g==';

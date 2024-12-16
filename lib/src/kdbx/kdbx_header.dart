@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
-import 'package:pointycastle/export.dart';
 
 import '../crypto/crypto_utils.dart';
 import '../crypto/hmac_block_transform.dart';
@@ -257,7 +257,7 @@ class KdbxHeader {
   set kdf(String kdf) => kdfParameters = _createKdfParameters(algo: kdf);
 
   /// The master key for KDBX version 3.x.
-  List<int> get masterKeyV3 {
+  Future<List<int>> get masterKeyV3 async {
     final transformSeed = this.transformSeed;
     final rounds = keyEncryptionRounds;
     final masterSeed = this.masterSeed;
@@ -270,14 +270,17 @@ class KdbxHeader {
     final challengeResponse = credentials.getChallengeResponse(masterSeed);
 
     final keyHash = KeyEncryptorAes.transform(
-        data: credHash, seed: transformSeed, rounds: rounds);
+      data: credHash,
+      seed: transformSeed,
+      rounds: rounds,
+    );
     CryptoUtils.wipeData(credHash);
 
     final all = masterSeed + (challengeResponse ?? []) + keyHash;
     CryptoUtils.wipeData(keyHash);
     CryptoUtils.wipeData(challengeResponse);
 
-    final masterKey = SHA256Digest().process(Uint8List.fromList(all));
+    final masterKey = sha256.convert(all).bytes;
     CryptoUtils.wipeData(all);
 
     return masterKey;
@@ -314,16 +317,15 @@ class KdbxHeader {
     final keyWithSeed = seed + encKey;
     CryptoUtils.wipeData(encKey);
 
-    final cipherKey = SHA256Digest().process(Uint8List.fromList(keyWithSeed));
-    final hmacKey =
-        SHA512Digest().process(Uint8List.fromList(keyWithSeed + [1]));
+    final cipherKey = sha256.convert(keyWithSeed).bytes;
+    final hmacKey = sha512.convert(keyWithSeed + [1]).bytes;
     CryptoUtils.wipeData(keyWithSeed);
 
-    final keySha =
-        HmacBlockTransform.getHmacKey(key: hmacKey, index: 0xffffffffffffffff);
-    final hmac = (HMac(SHA256Digest(), 64)
-          ..init(KeyParameter(Uint8List.fromList(keySha))))
-        .process(Uint8List.fromList(source ?? bytes));
+    final keySha = HmacBlockTransform.getHmacKey(
+      key: hmacKey,
+      index: 0xffffffffffffffff,
+    );
+    final hmac = Hmac(sha256, keySha).convert(source ?? bytes).bytes;
 
     return (cipherKey, hmacKey, hmac);
   }
@@ -572,6 +574,6 @@ class KdbxHeader {
   }
 
   _setHash(List<int> data) {
-    _hash = SHA256Digest().process(Uint8List.fromList(data));
+    _hash = sha256.convert(data).bytes;
   }
 }

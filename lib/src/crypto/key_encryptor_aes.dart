@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:pointycastle/export.dart';
 
 import 'crypto_utils.dart';
@@ -24,8 +25,8 @@ abstract final class KeyEncryptorAes {
       aes.processBlock(result, aes.blockSize, result, aes.blockSize);
     }
 
-    final hash = SHA256Digest().process(result);
+    final hash = sha256.convert(result);
     CryptoUtils.wipeData(result);
-    return hash;
+    return hash.bytes;
   }
 }

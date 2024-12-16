@@ -18,4 +18,8 @@
 
 ## 1.0.4
 
-- Rename _Icon_ enum to _KdbxIcon_.
+- Renamed _Icon_ enum to _KdbxIcon_.
+
+## 1.0.5
+
+- Improved performance.

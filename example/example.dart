@@ -3,7 +3,7 @@ import 'package:kpasslib/kpasslib.dart';
 // TODO: improve the example
 
 /// Creates a new database, modifies it, saves and loads again.
-void main() {
+void main() async {
   final credentials = KdbxCredentials(
     password: ProtectedData.fromString('demo'),
     keyData: KdbxCredentials.createRandomKeyFile(version: 2),
@@ -55,8 +55,8 @@ void main() {
   });
   entry.times.touch();
 
-  final data = db.save();
-  db = KdbxDatabase.fromBytes(
+  final data = await db.save();
+  db = await KdbxDatabase.fromBytes(
     data: data,
     credentials: credentials,
   );

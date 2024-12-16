@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:pointycastle/export.dart';
+import 'package:crypto/crypto.dart';
 
 import 'crypto_utils.dart';
 
@@ -32,7 +31,7 @@ class ProtectedData {
   /// The hash of the plain data.
   List<int> get hash {
     final bytes = this.bytes;
-    final hash = SHA256Digest().process(Uint8List.fromList(bytes));
+    final hash = sha256.convert(bytes).bytes;
     CryptoUtils.wipeData(bytes);
     return hash;
   }
