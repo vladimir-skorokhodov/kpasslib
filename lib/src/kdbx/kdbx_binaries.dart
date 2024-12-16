@@ -1,14 +1,12 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
-import 'package:pointycastle/export.dart';
 import 'package:xml/xml.dart';
 
-import '../crypto/crypto_utils.dart';
 import '../utils/xml_utils.dart';
 
 /// A KDBX binary attachment.
@@ -85,7 +83,7 @@ abstract class KdbxDataBinary extends KdbxBinary {
   String get hash {
     return _hash ??= switch (this) {
       final ProtectedBinary b => hex.encode(b.protectedData.hash),
-      _ => hex.encode(SHA256Digest().process(Uint8List.fromList(data))),
+      _ => hex.encode(sha256.convert(data).bytes),
     };
   }
 

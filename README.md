@@ -10,7 +10,7 @@ Ported and refactored from [KdbxWeb](https://github.com/keeweb/kdbxweb).
 ## Features
 
 - no native addons
-- fast encryption with [pointycastle](https://github.com/bcgit/pc-dart)
+- encryption with [pointycastle](https://github.com/bcgit/pc-dart), [cryptography_plus](https://github.com/emz-hanauer/dart-cryptography) and [hashlib](https://github.com/bitanon/hashlib).
 - full support of KDBX features
 - protected values are stored in memory XOR'ed with a salt
 - conflict-free merge support

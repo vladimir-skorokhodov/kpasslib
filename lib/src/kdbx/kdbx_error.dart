@@ -4,7 +4,7 @@ sealed class KdbxError implements Exception {
   const KdbxError([String message = '']) : _message = message;
 
   /// The description of the error.
-  get message => _message;
+  String get message => _message;
 }
 
 /// A error thrown if a KDBX file corruption detected.

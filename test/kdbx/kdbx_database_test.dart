@@ -234,21 +234,21 @@ void main() {
       await TestResources.init();
     });
 
-    test('loads simple file', () {
+    test('loads simple file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       expect(_getTestDb().isEqual(db), true);
     });
 
-    test('checks versions', () {
+    test('checks versions', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
       expect(db.header.version, (3, 1));
       expect(db.header.versionIsAtLeast(1, 0), true);
@@ -280,229 +280,242 @@ void main() {
               e is FileCorruptedError && e.message.contains('bad xml'))));
     });
 
-    test('loads utf8 uncompressed file', () {
+    test('loads utf8 uncompressed file', () async {
       final credentials =
           KdbxCredentials(password: ProtectedData.fromString('пароль'));
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.cyrillicKdbx, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       expect(db.meta.name, 'моя база паролей');
     });
 
-    test('loads a file with binary key', () {
+    test('loads a file with binary key', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('test'),
           keyData: TestResources.binKeyKey);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.binKeyKdbx, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a file with empty pass', () {
+    test('loads a file with empty pass', () async {
       final credentials =
           KdbxCredentials(password: ProtectedData.fromString(''));
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.emptyPass, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a file with empty pass and key-file', () {
+    test('loads a file with empty pass and key-file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString(''),
           keyData: TestResources.emptyPassWithKeyFileKey);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.emptyPassWithKeyFile, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a file with no pass and key-file', () {
+    test('loads a file with no pass and key-file', () async {
       final credentials =
           KdbxCredentials(keyData: TestResources.noPassWithKeyFileKey);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.noPassWithKeyFile, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a 32-byte key-file', () {
+    test('loads a 32-byte key-file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('test'),
           keyData: TestResources.key32Key);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.key32, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a 64-byte key-file', () {
+    test('loads a 64-byte key-file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('test'),
           keyData: TestResources.key64Key);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.key64, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a xml-bom key-file', () {
+    test('loads a xml-bom key-file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('test'),
           keyData: TestResources.keyWithBomKey);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.keyWithBom, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('loads a V2 key-file', () {
+    test('loads a V2 key-file', () async {
       final credentials = KdbxCredentials(keyData: TestResources.keyV2Key);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.keyV2, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
     });
 
-    test('successfully loads saved file', () {
+    test('successfully loads saved file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      var db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KeePass');
 
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(
+        data: data,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KPassLib');
       expect(testDb.isEqual(db), true);
     });
 
-    test('loads kdbx4 file with argon2 kdf', () {
+    test('loads kdbx4 file with argon2 kdf', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.argon2, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(
+        data: data,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KPassLib');
       expect(testDb.isEqual(db), true);
     });
 
-    test('loads kdbx4 file with argon2id kdf', () {
+    test('loads kdbx4 file with argon2id kdf', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.argon2id, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(data: data, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
       expect(testDb.isEqual(db), true);
     });
 
-    test('loads kdbx3 file with chacha20', () {
+    test('loads kdbx3 file with chacha20', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.aesChaCha, credentials: credentials);
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(data: data, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.dataCipherUuid?.string, CipherId.chaCha20);
       expect(testDb.isEqual(db), true);
     });
 
-    test('loads kdbx4 file with aes kdf', () {
+    test('loads kdbx4 file with aes kdf', () async {
       final credentials =
           KdbxCredentials(password: ProtectedData.fromString('demo'));
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.aesKdfKdbx4, credentials: credentials);
       expect(db.header.dataCipherUuid?.string, CipherId.aes);
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(data: data, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.dataCipherUuid?.string, CipherId.aes);
     });
 
-    test('loads kdbx4 file with argon2 kdf and chacha20 encryption', () {
+    test('loads kdbx4 file with argon2 kdf and chacha20 encryption', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
-          data: TestResources.argon2ChaCha, credentials: credentials);
+      var db = await KdbxDatabase.fromBytes(
+        data: TestResources.argon2ChaCha,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(
+        data: data,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.dataCipherUuid?.string, CipherId.chaCha20);
       expect(testDb.isEqual(db), true);
     });
 
-    test('loads kdbx3 file with challenge-response', () {
+    test('loads kdbx3 file with challenge-response', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           challengeResponse: challengeResponse);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.yubikey3, credentials: credentials);
       expect(db.meta.generator, 'Strongbox');
     });
 
-    test('loads a kdbx4 file with challenge-response', () {
+    test('loads a kdbx4 file with challenge-response', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           challengeResponse: challengeResponse);
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.yubikey4, credentials: credentials);
       expect(db.meta.generator, 'KeePassXC');
     });
 
-    test('upgrades file to latest version', () {
+    test('upgrades file to latest version', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
       db.upgrade();
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(data: data, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.version, (4, 1));
       expect(
-          db.header.kdfParameters?.get('\$UUID'), base64.decode(KdfId.argon2));
+          db.header.kdfParameters?.get('\$UUID'), base64.decode(KdfId.argon2d));
       expect(testDb.isEqual(db), true);
     });
 
-    test('upgrades file to latest version with aes kdf', () {
+    test('upgrades file to latest version with aes kdf', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
@@ -510,29 +523,34 @@ void main() {
 
       db.upgrade();
       db.kdf = KdfId.aes;
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(data: data, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.version, (4, 1));
       expect(db.header.kdfParameters?.get('\$UUID'), base64.decode(KdfId.aes));
       expect(testDb.isEqual(db), true);
     });
 
-    test('upgrades file to latest version with argon2id kdf', () {
+    test('upgrades file to latest version with argon2id kdf', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      var db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
       db.upgrade();
       db.kdf = KdfId.argon2id;
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(
+        data: data,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.version, (4, 1));
       expect(db.header.kdfParameters?.get('\$UUID'),
@@ -540,50 +558,59 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('downgrades file to V3', () {
+    test('downgrades file to V3', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      var db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
       db.version = (3, 1);
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(
+        data: data,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.version, (3, 1));
       expect(testDb.isEqual(db), true);
     });
 
-    test('saves kdbx4 to xml and loads it back', () {
+    test('saves kdbx4 to xml and loads it back', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      var db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
       expect(testDb.isEqual(db), true);
 
       db.upgrade();
       final data = db.exportToXmlString(pretty: true);
-      db =
-          KdbxDatabase.fromXmlString(xmlString: data, credentials: credentials);
+      db = KdbxDatabase.fromXmlString(
+        xmlString: data,
+        credentials: credentials,
+      );
       expect(db.meta.generator, 'KPassLib');
       expect(testDb.isEqual(db), true);
     });
 
-    test('saves and loads custom data', () {
+    test('saves and loads custom data', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
       expect(db.meta.generator, 'KeePass');
       final testDb = _getTestDb();
@@ -598,8 +625,8 @@ void main() {
       db.root.entries.first.customData = KdbxCustomData()
         ..map = {'custom': KdbxCustomItem(value: 'entry')};
 
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(data: data, credentials: credentials);
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(data: data, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
       expect(db.header.version, (4, 1));
       expect(db.root.groups.first.customData?.map['custom']?.value, 'group');
@@ -608,7 +635,7 @@ void main() {
       expect(testDb.isEqual(db), true);
     });
 
-    test('creates new database', () {
+    test('creates new database', () async {
       final keyFile = KdbxCredentials.createRandomKeyFile(version: 1);
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'), keyData: keyFile);
@@ -640,8 +667,8 @@ void main() {
       });
       entry.times.touch();
 
-      final ab = db.save();
-      db = KdbxDatabase.fromBytes(data: ab, credentials: credentials);
+      final ab = await db.save();
+      db = await KdbxDatabase.fromBytes(data: ab, credentials: credentials);
 
       expect(db.meta.generator, 'KPassLib');
       expect(db.meta.customData.map['key']?.value, 'val');
@@ -650,7 +677,7 @@ void main() {
       expect(db.getGroup(uuid: db.meta.recycleBinUuid), db.root.groups.first);
     });
 
-    test('creates random keyfile v2', () {
+    test('creates random keyfile v2', () async {
       final keyFile = KdbxCredentials.createRandomKeyFile(version: 2);
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'), keyData: keyFile);
@@ -659,8 +686,8 @@ void main() {
       final keyFileStr = utf8.decode(Uint8List.fromList(keyFile));
       expect(keyFileStr.contains('<Version>2.0</Version>'), true);
 
-      final ab = db.save();
-      db = KdbxDatabase.fromBytes(data: ab, credentials: credentials);
+      final ab = await db.save();
+      db = await KdbxDatabase.fromBytes(data: ab, credentials: credentials);
       expect(db.meta.generator, 'KPassLib');
     });
 
@@ -752,13 +779,15 @@ void main() {
               e.message.contains('invalid key'))));
     });
 
-    test('deletes and restores an entry', () {
+    test('deletes and restores an entry', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      final db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      final db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
 
       final parent = db.root.groups[1];
       final group = parent.groups.last;
@@ -774,13 +803,15 @@ void main() {
       expect(_getTestDb().isEqual(db), true);
     });
 
-    test('changes group order', () {
+    test('changes group order', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      final db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      final db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
 
       final root = db.root;
       expect(root.groups.length > 3, true);
@@ -794,12 +825,12 @@ void main() {
       expect(_getTestDb().isEqual(db), true);
     });
 
-    test('deletes entry without recycle bin', () {
+    test('deletes entry without recycle bin', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      final db = KdbxDatabase.fromBytes(
+      final db = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
 
       final group = db.root.groups[1].groups.last;
@@ -810,13 +841,15 @@ void main() {
       expect(db.deletedObjects.keys.last, group.uuid);
     });
 
-    test('creates a recycle bin if it is enabled but not created', () {
+    test('creates a recycle bin if it is enabled but not created', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
 
-      final db = KdbxDatabase.fromBytes(
-          data: TestResources.demoKdbx, credentials: credentials);
+      final db = await KdbxDatabase.fromBytes(
+        data: TestResources.demoKdbx,
+        credentials: credentials,
+      );
 
       final parent = db.root.groups[1];
       final groupLength = parent.groups.length;
@@ -984,12 +1017,12 @@ void main() {
       expect(db.binaries.all, binaries.sublist(0, 2));
     });
 
-    test('imports an entry from another file', () {
+    test('imports an entry from another file', () async {
       final credentials = KdbxCredentials(
           password: ProtectedData.fromString('demo'),
           keyData: TestResources.demoKey);
       var db = KdbxDatabase.create(credentials: credentials, name: 'example');
-      var sourceDb = KdbxDatabase.fromBytes(
+      var sourceDb = await KdbxDatabase.fromBytes(
           data: TestResources.demoKdbx, credentials: credentials);
 
       final sourceEntryWithCustomIcon = sourceDb.root.entries.first;
@@ -1015,8 +1048,8 @@ void main() {
       expect(
           importedEntryWithBinaries.uuid != sourceEntryWithBinaries.uuid, true);
 
-      final ab = db.save();
-      db = KdbxDatabase.fromBytes(data: ab, credentials: credentials);
+      final ab = await db.save();
+      db = await KdbxDatabase.fromBytes(data: ab, credentials: credentials);
       expect(db.root.entries.length, 2);
 
       final withCustomIcon = db.root.entries[0];
@@ -1042,7 +1075,7 @@ void main() {
       expect(entry.history.isNotEmpty, true);
     });
 
-    test('supports KDBX4.1 features', () {
+    test('supports KDBX4.1 features', () async {
       check(KdbxDatabase db) {
         final groupWithTags = db.root.groups.first.groups.first;
         expect(groupWithTags.name, 'With tags');
@@ -1085,7 +1118,7 @@ void main() {
 
       final credentials =
           KdbxCredentials(password: ProtectedData.fromString('test'));
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
           data: TestResources.kdbx41, credentials: credentials);
       check(db);
 
@@ -1094,12 +1127,12 @@ void main() {
       check(db);
     });
 
-    test('changes password', () {
+    test('changes password', () async {
       final credentials = KdbxCredentials(
         password: ProtectedData.fromString('demo'),
         keyData: TestResources.demoKey,
       );
-      var db = KdbxDatabase.fromBytes(
+      var db = await KdbxDatabase.fromBytes(
         data: TestResources.demoKdbx,
         credentials: credentials,
       );
@@ -1111,8 +1144,8 @@ void main() {
         password: ProtectedData.fromString('new password'),
       );
       db.header.credentials = credentials2;
-      final data = db.save();
-      db = KdbxDatabase.fromBytes(
+      final data = await db.save();
+      db = await KdbxDatabase.fromBytes(
         data: data,
         credentials: credentials2,
       );

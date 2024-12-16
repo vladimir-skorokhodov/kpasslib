@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
 /// Standard icons.
-enum Icon {
+enum KdbxIcon {
   key(0),
   world(1),
   warning(2),
@@ -72,10 +72,10 @@ enum Icon {
   certificate(67),
   blackBerry(68);
 
-  const Icon(this.value);
+  const KdbxIcon(this.value);
   final int value;
 
-  factory Icon.fromInt(int value) => values.elementAtOrNull(value) ?? key;
+  factory KdbxIcon.fromInt(int value) => values.elementAtOrNull(value) ?? key;
 }
 
 /// A compression type.
@@ -126,7 +126,6 @@ abstract final class DataSize {
 
 /// Identifier of KDF.
 abstract final class KdfId {
-  static const argon2 = '72Nt34wpREuR96mkA+MKDA==';
   static const argon2d = '72Nt34wpREuR96mkA+MKDA==';
   static const argon2id = 'nimLGVbbR3OyPfw+xvCh5g==';
   static const aes = 'ydnzmmKKRGC/dA0IwYpP6g==';

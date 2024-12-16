@@ -28,13 +28,13 @@ class KdbxGroup extends KdbxItem {
   KdbxUuid? lastTopVisibleEntry;
 
   KdbxGroup._(super.uuid) {
-    icon = Icon.folder;
+    icon = KdbxIcon.folder;
   }
 
   /// Constructs a [KdbxGroup] with [name], [icon] and [id].
   factory KdbxGroup.create({
     required String name,
-    required Icon icon,
+    required KdbxIcon icon,
     required KdbxUuid id,
     KdbxGroup? parent,
     bool? enableAutoType,
@@ -181,7 +181,7 @@ class KdbxGroup extends KdbxItem {
       case XmlElem.notes:
         notes = node.innerText;
       case XmlElem.icon:
-        icon = Icon.fromInt(int.tryParse(node.innerText) ?? 0);
+        icon = KdbxIcon.fromInt(int.tryParse(node.innerText) ?? 0);
       case XmlElem.customIconID:
         customIcon = KdbxUuid.fromString(node.innerText);
       case XmlElem.tags:
