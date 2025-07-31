@@ -23,3 +23,8 @@
 ## 1.0.5
 
 - Improved performance.
+- 
+## 1.0.6
+
+- Fixed KDBX4 incompatibility with KeePass Desktop.
+- General imptovements.
