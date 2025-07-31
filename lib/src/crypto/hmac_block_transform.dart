@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
@@ -19,17 +18,21 @@ abstract final class HmacBlockTransform {
     final writer = BytesWriter();
     var index = 0;
 
-    while (reader.bytesLeft > 0) {
-      final size = min(DataSize.mebi, reader.bytesLeft);
-      final data = reader.readBytes(size);
-      final hash = _getBlockHmac(key, index++, data);
+    writeBlock(List<int> blockData) {
+      final hash = _getBlockHmac(key, index++, blockData);
       writer.writeBytes(hash);
-      writer.writeUint32(size);
-      writer.writeBytes(data);
+      writer.writeUint32(blockData.length);
+      writer.writeBytes(blockData);
     }
 
-    writer.writeBytes(Uint8List(32));
-    writer.writeUint32(0);
+    while (reader.bytesLeft > 0) {
+      final size = min(DataSize.mebi, reader.bytesLeft);
+      final blockData = reader.readBytes(size);
+      writeBlock(blockData);
+    }
+
+    writeBlock([]);
+
     return writer.bytes;
   }
 
@@ -45,12 +48,14 @@ abstract final class HmacBlockTransform {
     next() => (reader.readBytes(32), reader.readUint32());
 
     for (var (hash, size) = next(); size > 0; (hash, size) = next()) {
-      final data = reader.readBytes(size);
-      writer.writeBytes(data);
+      final blockData = reader.readBytes(size);
 
-      if (!ListEquality().equals(hash, _getBlockHmac(key, index++, data))) {
+      if (!ListEquality()
+          .equals(hash, _getBlockHmac(key, index++, blockData))) {
         throw FileCorruptedError('invalid block hash');
       }
+
+      writer.writeBytes(blockData);
     }
 
     return writer.bytes;
