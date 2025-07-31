@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:kpasslib/kpasslib.dart';
 import 'package:xml/xml.dart';
 
-import '../crypto/crypto_utils.dart';
 import '../crypto/hashed_block_transform.dart';
 import '../crypto/hmac_block_transform.dart';
 import '../utils/byte_utils.dart';
@@ -522,7 +521,7 @@ class KdbxDatabase {
     CryptoUtils.wipeData(cipherKey);
 
     if (header.compression == CompressionAlgorithm.gzip) {
-      data = ZLibDecoder().decodeBytes(data);
+      data = GZipDecoder().decodeBytes(data);
     }
 
     reader = BytesReader(data);

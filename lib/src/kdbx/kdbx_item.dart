@@ -62,7 +62,7 @@ class KdbxAutoType {
 
   /// Constructs an empty [KdbxAutoType] object.
   KdbxAutoType({
-    this.enabled = true,
+    this.enabled,
     this.obfuscation = AutoTypeObfuscationOptions.none,
     this.defaultSequence,
     List<KdbxAutoTypeItem>? items,
@@ -148,7 +148,7 @@ abstract class KdbxItem {
   /// The [KdbxTimes] property.
   var times = KdbxTimes();
 
-  /// The standart icon.
+  /// The standard icon.
   KdbxIcon icon = KdbxIcon.key;
 
   /// The custom icon ID.
@@ -187,8 +187,6 @@ abstract class KdbxItem {
       (XmlElem.icon, icon),
       (XmlElem.customIconID, customIcon),
       if (is41 || this is KdbxEntry) (XmlElem.tags, tags),
-      (XmlElem.groupDefaultAutoTypeSeq, autoType.defaultSequence),
-      (XmlElem.enableAutoType, autoType.enabled),
       if (is41) (XmlElem.previousParentGroup, previousParent),
     ]);
 

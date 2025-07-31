@@ -18,7 +18,7 @@ abstract class _HeaderField {
 }
 
 enum _OuterField implements _HeaderField {
-  endOfHeader(type: ParameterType.uInt32),
+  endOfHeader(type: ParameterType.bytes),
   comment(type: ParameterType.bytes),
   cipherID(type: ParameterType.bytes),
   compressionFlags(type: ParameterType.uInt32),
@@ -41,7 +41,7 @@ enum _OuterField implements _HeaderField {
 }
 
 enum _InnerField implements _HeaderField {
-  endOfHeader(type: ParameterType.uInt32),
+  endOfHeader(type: ParameterType.bytes),
   innerRandomStreamID(type: ParameterType.uInt32),
   innerRandomStreamKey(type: ParameterType.bytes),
   binary(type: ParameterType.bytes);
@@ -105,7 +105,8 @@ class KdbxHeader {
   static const _defaultKdfMemory = 0x100000;
   static const _defaultKdfVersion = 0x13;
   static const _defaultKdfSaltLength = 32;
-  static const _endOfHeader = 0x0d0ad0a;
+  static const _endOfInnerHeader = <int>[];
+  static const _endOfOuterHeader = <int>[0x0D, 0x0A, 0x0D, 0x0A];
 
   ProtectSaltGenerator? _saltGenerator;
   var _version = defaultVersion;
@@ -173,7 +174,7 @@ class KdbxHeader {
           writer, _OuterField.publicCustomData, publicCustomData?.bytes, false);
     }
 
-    _writeField(writer, _OuterField.endOfHeader, _endOfHeader);
+    _writeField(writer, _OuterField.endOfHeader, _endOfOuterHeader);
 
     final bytes = writer.bytes;
     _setHash(bytes);
@@ -188,7 +189,8 @@ class KdbxHeader {
     _writeField(writer, _InnerField.innerRandomStreamID, crsAlgorithm?.value);
     _writeField(writer, _InnerField.innerRandomStreamKey, protectedStreamKey);
     _writeBinaries(writer);
-    _writeField(writer, _InnerField.endOfHeader, _endOfHeader);
+
+    _writeField(writer, _InnerField.endOfHeader, _endOfInnerHeader);
 
     return writer.bytes;
   }
