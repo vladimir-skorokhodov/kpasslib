@@ -1,5 +1,9 @@
 # KPassLib changelog
 
+## 1.0.7
+
+- Minor fixes.
+
 ## 1.0.6
 
 - Fixed KDBX4 incompatibility with KeePass Desktop.
