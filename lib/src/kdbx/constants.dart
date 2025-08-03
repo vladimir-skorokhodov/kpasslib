@@ -214,7 +214,7 @@ abstract final class XmlElem {
   static const locationChanged = 'LocationChanged';
 
   static const groupDefaultAutoTypeSeq = 'DefaultAutoTypeSequence';
-  static const enableAutoType = 'EnableAutoType';
+  static const groupEnableAutoType = 'EnableAutoType';
   static const enableSearching = 'EnableSearching';
 
   static const string = 'String';

@@ -6,6 +6,7 @@ import 'package:xml/xml.dart';
 
 import '../utils/merge_utils.dart';
 import '../utils/xml_utils.dart';
+import 'kdbx_autotype.dart';
 
 /// A text field of an [KdbxEntry].
 abstract class KdbxTextField {
@@ -148,6 +149,9 @@ class KdbxEntryEditState {
 
 /// Represents KDBX entry structure
 class KdbxEntry extends KdbxItem {
+  /// The autotype.
+  var autoType = KdbxAutoType();
+
   /// The entry foreground color.
   String? foreground;
 

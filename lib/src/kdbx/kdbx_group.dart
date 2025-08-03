@@ -24,6 +24,12 @@ class KdbxGroup extends KdbxItem {
   /// Whether searching is enabled in this group.
   bool? isSearchingEnabled;
 
+  /// Whether autotype is enabled.
+  bool? isAutoTypeEnabled;
+
+  /// The default autotype sequence.
+  String? defaultAutoTypeSeq;
+
   /// Tha last top visible entry of this group.
   KdbxUuid? lastTopVisibleEntry;
 
@@ -44,7 +50,7 @@ class KdbxGroup extends KdbxItem {
     group.name = name;
     group.icon = icon;
     group.parent = parent;
-    group.autoType.enabled = enableAutoType;
+    group.isAutoTypeEnabled = enableAutoType;
     group.isSearchingEnabled = enableSearching;
     group.isExpanded = true;
     group.times = KdbxTimes.fromTime();
@@ -88,8 +94,8 @@ class KdbxGroup extends KdbxItem {
       (XmlElem.name, name),
       (XmlElem.notes, notes),
       (XmlElem.isExpanded, isExpanded),
-      (XmlElem.groupDefaultAutoTypeSeq, autoType.defaultSequence),
-      (XmlElem.enableAutoType, autoType.enabled),
+      (XmlElem.groupDefaultAutoTypeSeq, defaultAutoTypeSeq),
+      (XmlElem.groupEnableAutoType, isAutoTypeEnabled),
       (XmlElem.enableSearching, isSearchingEnabled),
       (XmlElem.lastTopVisibleEntry, lastTopVisibleEntry),
     ]);
@@ -132,15 +138,6 @@ class KdbxGroup extends KdbxItem {
       item.merge(objectMap);
     }
   }
-
-  /// The default autotype sequence
-  String? get defaultAutoTypeSeq => autoType.defaultSequence;
-  set defaultAutoTypeSeq(String? sequence) =>
-      autoType.defaultSequence = sequence;
-
-  /// Whether autotype is enabled.
-  bool? get isAutoTypeEnabled => autoType.enabled;
-  set isAutoTypeEnabled(bool? enabled) => autoType.enabled = enabled;
 
   /// All the entries contained in this group and in children.
   List<KdbxEntry> get allEntries =>
@@ -192,7 +189,7 @@ class KdbxGroup extends KdbxItem {
         isExpanded = XmlUtils.getBoolean(node);
       case XmlElem.groupDefaultAutoTypeSeq:
         defaultAutoTypeSeq = node.innerText;
-      case XmlElem.enableAutoType:
+      case XmlElem.groupEnableAutoType:
         isAutoTypeEnabled = XmlUtils.getBoolean(node);
       case XmlElem.enableSearching:
         isSearchingEnabled = XmlUtils.getBoolean(node);

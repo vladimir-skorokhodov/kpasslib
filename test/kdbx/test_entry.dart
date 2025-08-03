@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:kpasslib/kpasslib.dart';
+import 'package:kpasslib/src/kdbx/kdbx_autotype.dart';
 
 import 'test_times.dart';
 
