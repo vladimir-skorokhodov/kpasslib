@@ -275,9 +275,8 @@ class KdbxDatabase {
   }
 
   /// Returns a group by [uuid] or null if not found.
-  KdbxGroup? getGroup({required KdbxUuid? uuid}) => groups
-      .map((g) => g.allGroups.firstWhereOrNull((g) => g.uuid == uuid))
-      .firstWhereOrNull((g) => g != null);
+  KdbxGroup? getGroup({required KdbxUuid? uuid}) =>
+      [root, ...root.allGroups].firstWhereOrNull((g) => g.uuid == uuid);
 
   /// Moves an [item] from parent group to a [target] group at [index] position.
   /// In case [target] is null, the [item] will be removed.
