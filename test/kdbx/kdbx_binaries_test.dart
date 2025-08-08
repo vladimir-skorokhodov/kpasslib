@@ -53,5 +53,50 @@ void main() {
       notFound = binaries.getByRef(BinaryReference(2));
       expect(notFound, null);
     });
+
+    test('removes a binary by reference', () {
+      final binaries = KdbxBinaries();
+      final binary1 = PlainBinary(data: [1], compressed: false);
+      final binary2 = PlainBinary(data: [2], compressed: false);
+      final binary3 = PlainBinary(data: [3], compressed: false);
+
+      binaries.add(binary1);
+      binaries.add(binary2);
+      binaries.add(binary3);
+      expect(binaries.all, [binary1, binary2, binary3]);
+
+      binaries.remove(binary2);
+      expect(binaries.all, [binary1, binary3]);
+
+      binaries.add(binary2);
+      expect(binaries.contains(binary1), true);
+      expect(binaries.contains(binary2), true);
+      expect(binaries.contains(binary3), true);
+    });
+
+    test('removes a binary by reference', () {
+      final binaries = KdbxBinaries();
+      final binary1 = PlainBinary(data: [1], compressed: false);
+      final binary2 = PlainBinary(data: [2], compressed: false);
+      final binary3 = PlainBinary(data: [3], compressed: true);
+
+      final ref1 = binaries.add(binary1);
+      final ref2 = binaries.add(binary2);
+      final ref3 = binaries.add(binary3);
+      expect(binaries.getByRef(ref1)?.data, [1]);
+      expect(binaries.getByRef(ref2)?.data, [2]);
+      expect(binaries.getByRef(ref3)?.data, [3]);
+
+      binaries.remove(binary2);
+      expect(binaries.getByRef(ref2), null);
+      expect(binaries.getByRef(ref1)?.data, [1]);
+      expect(binaries.getByRef(ref3)?.data, [3]);
+
+      final ref4 = binaries.add(binary2);
+      expect(binaries.getByRef(ref2), null);
+      expect(binaries.getByRef(ref1)?.data, [1]);
+      expect(binaries.getByRef(ref3)?.data, [3]);
+      expect(binaries.getByRef(ref4)?.data, [2]);
+    });
   });
 }
