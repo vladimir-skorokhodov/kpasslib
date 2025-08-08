@@ -1,5 +1,10 @@
 # KPassLib changelog
 
+## 1.0.8
+
+- Fixed _KdbxDatabase.getGroup()_ method.
+- Fixed _KdbxBinaries_ inconsistency.
+
 ## 1.0.7
 
 - Minor fixes.

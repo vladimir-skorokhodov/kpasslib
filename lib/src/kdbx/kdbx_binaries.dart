@@ -181,7 +181,10 @@ class KdbxBinaries {
       return BinaryReference(found.key);
     }
 
-    final id = _map.length;
+    var id = _map.keys.isNotEmpty ? _map.keys.last : 0;
+    while (_map.containsKey(id)) {
+      ++id;
+    }
     _map[id] = binary;
 
     return BinaryReference(id);
@@ -236,7 +239,7 @@ class KdbxBinaries {
     return XmlElement(
       XmlName(XmlElem.binaries),
       [],
-      all.mapIndexed((i, e) => e._toXml(id: i, header: header)),
+      _map.entries.map((e) => e.value._toXml(id: e.key, header: header)),
     );
   }
 }
