@@ -1,77 +1,29 @@
 import 'dart:math';
-
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/helpers.dart' as ch;
+import 'dart:typed_data';
 
 /// Encryption utility functions
 abstract final class CryptoUtils {
-  /// Overwrites the [data] buffer.
-  static wipeData(List<int>? data) {
-    if (data == null || data.isEmpty) {
-      return;
-    }
+  static const _byteRange = 1 << 8;
 
-    final random = Random.secure();
-    for (int i = 0; i < data.length; ++i) {
-      data[i] = random.nextInt(2 ^ 32);
-    }
+  /// Overwrites the [data] buffer with random bytes.
+  static wipeData(List<int>? data) {
+    data?.setAll(0, randomBytes(data.length));
   }
 
-  /// Generates random list of bytes with requested [length].
-  static List<int> randomBytes(int length) => ch.randomBytes(
-        length,
-        random: SecureRandom.fast,
-      );
+  /// Generates random bytes with requested [length].
+  static Uint8List randomBytes(int length) {
+    final random = Random.secure();
+    final bytes = Uint8List(length);
+    for (var i = 0; i < length; i++) {
+      bytes[i] = random.nextInt(_byteRange);
+    }
+    return bytes;
+  }
 
   /// Returns result of XOR applied to [data] with [salt].
   static List<int> transformXor({
     required List<int> data,
     required List<int> salt,
-  }) {
-    final saltLength = salt.length;
-    return List<int>.generate(
-        data.length, (i) => data[i] ^ salt[i % saltLength]);
-  }
-
-  /// Returns result of [data] transformation with AES algorithm.
-  static Future<List<int>> transformAes({
-    required List<int> data,
-    required List<int> key,
-    required List<int> iv,
-    bool encrypt = true,
-  }) async {
-    final cbc = AesCbc.with256bits(macAlgorithm: MacAlgorithm.empty);
-    final secretKey = await cbc.newSecretKeyFromBytes(key);
-
-    if (encrypt) {
-      final box = await cbc.encrypt(
-        data,
-        secretKey: secretKey,
-        nonce: iv,
-      );
-      return box.cipherText;
-    } else {
-      return await cbc.decrypt(
-        SecretBox(data, nonce: iv, mac: Mac.empty),
-        secretKey: secretKey,
-      );
-    }
-  }
-
-  /// Returns result of [data] transformation with ChaCha20 algorithm.
-  static Future<List<int>> transformChaCha20({
-    required List<int> data,
-    required List<int> key,
-    required List<int> iv,
-  }) async {
-    final chacha = Chacha20(macAlgorithm: MacAlgorithm.empty);
-    final secretKey = await chacha.newSecretKeyFromBytes(key);
-    final box = await chacha.encrypt(
-      data,
-      secretKey: secretKey,
-      nonce: iv,
-    );
-
-    return box.cipherText;
-  }
+  }) =>
+      List.generate(data.length, (i) => data[i] ^ salt[i % salt.length]);
 }

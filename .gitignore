@@ -4,3 +4,4 @@ coverage
 pubspec.lock
 build
 doc/api
+native/build

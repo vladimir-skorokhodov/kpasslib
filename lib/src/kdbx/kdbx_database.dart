@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collection/collection.dart';
@@ -497,7 +498,7 @@ class KdbxDatabase {
       throw FileCorruptedError('header hash mismatch');
     }
 
-    final (cipherKey, hmacKey, hmac) = header.computeKeysV4(headerBytes);
+    final (cipherKey, hmacKey, hmac) = await header.computeKeysV4(headerBytes);
 
     final expectedHeaderHmac = reader.readBytes(hmac.length);
     if (!ListEquality().equals(expectedHeaderHmac, hmac)) {
@@ -513,7 +514,7 @@ class KdbxDatabase {
     var data = await _transformData(
       header: header,
       data: content,
-      cipherKey: cipherKey,
+      cipherKey: Uint8List.fromList(cipherKey),
       encrypt: false,
     );
 
@@ -534,15 +535,15 @@ class KdbxDatabase {
     return _xmlToDB(header: header, xml: xml, binaryTime: true);
   }
 
-  Future<List<int>> get _v3Bytes {
+  Future<Uint8List> get _v3Bytes {
     final xml = _buildXml(exportXml: false, binaryTime: false);
     return _getXmlV3Bytes(xml);
   }
 
-  Future<List<int>> get _v4Bytes async {
+  Future<Uint8List> get _v4Bytes async {
     final xml = _buildXml(exportXml: false, binaryTime: true);
 
-    final (cipherKey, hmacKey, hmac) = header.computeKeysV4();
+    final (cipherKey, hmacKey, hmac) = await header.computeKeysV4();
 
     final writer = BytesWriter();
     writer.writeBytes(header.hash);
@@ -560,8 +561,8 @@ class KdbxDatabase {
 
     data = await _transformData(
       header: header,
-      data: data,
-      cipherKey: cipherKey,
+      data: Uint8List.fromList(data),
+      cipherKey: Uint8List.fromList(cipherKey),
       encrypt: true,
     );
     CryptoUtils.wipeData(cipherKey);
@@ -616,14 +617,14 @@ class KdbxDatabase {
   }
 
   static Future<String> _decryptXmlV3({
-    required List<int> bytes,
+    required Uint8List bytes,
     required KdbxHeader header,
   }) async {
     final masterKey = await header.masterKeyV3;
     var data = await _transformData(
       header: header,
       data: bytes,
-      cipherKey: masterKey,
+      cipherKey: Uint8List.fromList(masterKey),
       encrypt: false,
     );
     CryptoUtils.wipeData(masterKey);
@@ -638,8 +639,8 @@ class KdbxDatabase {
     return utf8.decode(data);
   }
 
-  Future<List<int>> _getXmlV3Bytes(XmlDocument xml) async {
-    var data = utf8.encode(xml.toXmlString()).toList();
+  Future<Uint8List> _getXmlV3Bytes(XmlDocument xml) async {
+    var data = utf8.encode(xml.toXmlString());
 
     if (header.compression == CompressionAlgorithm.gzip) {
       data = GZipEncoder().encodeBytes(data);
@@ -652,13 +653,11 @@ class KdbxDatabase {
       throw InvalidStateError('no header start bytes');
     }
 
-    data = ssb + data;
-
     final masterKey = await header.masterKeyV3;
     data = await _transformData(
       header: header,
-      data: data,
-      cipherKey: masterKey,
+      data: Uint8List.fromList(ssb + data),
+      cipherKey: Uint8List.fromList(masterKey),
       encrypt: true,
     );
     CryptoUtils.wipeData(masterKey);
@@ -666,8 +665,8 @@ class KdbxDatabase {
     return data;
   }
 
-  static List<int> _trimStartBytesV3({
-    required List<int> data,
+  static Uint8List _trimStartBytesV3({
+    required Uint8List data,
     required KdbxHeader header,
   }) {
     if (header.streamStartBytes == null) {
@@ -680,17 +679,17 @@ class KdbxDatabase {
     }
 
     if (!ListEquality()
-        .equals(data.slice(0, length), header.streamStartBytes)) {
+        .equals(data.sublist(0, length), header.streamStartBytes)) {
       throw InvalidCredentialsError('invalid key');
     }
 
-    return data.slice(length);
+    return data.sublist(length);
   }
 
-  static Future<List<int>> _transformData({
+  static Future<Uint8List> _transformData({
     required KdbxHeader header,
-    required List<int> data,
-    required List<int> cipherKey,
+    required Uint8List data,
+    required Uint8List cipherKey,
     required encrypt,
   }) async {
     final cipherId = header.dataCipherUuid;
@@ -704,18 +703,14 @@ class KdbxDatabase {
     }
 
     try {
-      return await switch (cipherId.string) {
-        CipherId.aes => CryptoUtils.transformAes(
-            data: data,
-            key: cipherKey,
-            iv: iv,
-            encrypt: encrypt,
-          ),
-        CipherId.chaCha20 => CryptoUtils.transformChaCha20(
-            data: data,
-            key: cipherKey,
-            iv: iv,
-          ),
+      final aes = Crypto.engine.createAes256(key: cipherKey);
+      return switch (cipherId.string) {
+        CipherId.aes => encrypt
+            ? aes.encryptCbc(data: data, iv: iv)
+            : aes.decryptCbc(data: data, iv: iv),
+        CipherId.chaCha20 => Crypto.engine
+            .createChaCha20(key: cipherKey)
+            .transform(data: data, nonce: iv),
         _ => throw UnsupportedValueError('unsupported cipher')
       };
     } catch (_) {

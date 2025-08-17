@@ -1,65 +1,63 @@
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
-import 'package:pointycastle/export.dart';
+
+import 'stream_cipher.dart';
 
 /// Salt generator for protected data
-// TODO: define constants for magic numbers
-abstract class ProtectSaltGenerator {
-  final StreamCipher _algo;
-  ProtectSaltGenerator._(this._algo);
+class ProtectSaltGenerator {
+  static final Uint8List _salsaNonce = Uint8List.fromList(
+    [0xe8, 0x30, 0x09, 0x4b, 0x97, 0x20, 0x5d, 0x2a],
+  );
+
+  final StreamCipher _cipher;
+  final Uint8List _nonce;
+  var _position = 0;
+
+  ProtectSaltGenerator._(this._cipher, this._nonce);
 
   /// Constructs [ProtectSaltGenerator] from based on provided
   /// [key] and [algorithm].
-  factory ProtectSaltGenerator.fromKey({
+  factory ProtectSaltGenerator({
     required List<int> key,
     required CrsAlgorithm algorithm,
   }) {
-    return switch (algorithm) {
-      CrsAlgorithm.salsa20 => _SalsaSaltGenerator(
-          SHA256Digest().process(
-            Uint8List.fromList(key),
-          ),
-        ),
-      CrsAlgorithm.chaCha20 => _ChachaSaltGenerator(
-          SHA512Digest().process(Uint8List.fromList(key)),
-        ),
-      _ => throw UnsupportedValueError('crsAlgorithm')
-    };
+    switch (algorithm) {
+      case CrsAlgorithm.salsa20:
+        final salsaKey = Uint8List.fromList(sha256.convert(key).bytes);
+        return ProtectSaltGenerator._(
+          Crypto.engine.createSalsa20(key: salsaKey),
+          _salsaNonce,
+        );
+      case CrsAlgorithm.chaCha20:
+        final hash512 = Uint8List.fromList(sha512.convert(key).bytes);
+        return ProtectSaltGenerator._(
+          Crypto.engine.createChaCha20(key: hash512.sublist(0, 32)),
+          hash512.sublist(32, 44),
+        );
+      default:
+        throw UnsupportedValueError('crsAlgorithm');
+    }
   }
 
   /// Generates salt bytes requested [length].
-  List<int> getSalt(int length) => _algo.process(Uint8List(length)).toList();
-}
+  Uint8List getSalt(int length) {
+    if (length == 0) return Uint8List(0);
 
-class _SalsaSaltGenerator extends ProtectSaltGenerator {
-  static const _salsaNonce = [0xe8, 0x30, 0x09, 0x4b, 0x97, 0x20, 0x5d, 0x2a];
+    final offset = _position % 64;
+    final counter = _position ~/ 64;
+    final bytesNeeded = length + offset;
+    final blocks = (bytesNeeded + 63) ~/ 64;
 
-  _SalsaSaltGenerator(List<int> key) : super._(Salsa20Engine()) {
-    _algo.init(
-      false,
-      ParametersWithIV(
-        KeyParameter(
-          Uint8List.fromList(key),
-        ),
-        Uint8List.fromList(_salsaNonce),
-      ),
+    final keystream = _cipher.transform(
+      data: Uint8List(blocks * 64),
+      nonce: _nonce,
+      counter: counter,
     );
-  }
-}
 
-class _ChachaSaltGenerator extends ProtectSaltGenerator {
-  _ChachaSaltGenerator(List<int> key) : super._(ChaCha7539Engine()) {
-    _algo.init(
-      false,
-      ParametersWithIV(
-        KeyParameter(
-          Uint8List.fromList(key.sublist(0, 32)),
-        ),
-        Uint8List.fromList(
-          key.sublist(32, 44),
-        ),
-      ),
-    );
+    final result = keystream.sublist(offset, offset + length);
+    _position += length;
+    return result;
   }
 }

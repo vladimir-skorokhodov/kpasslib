@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:convert/convert.dart';
 import 'package:kpasslib/kpasslib.dart';
 import 'package:kpasslib/src/utils/byte_utils.dart';
@@ -14,11 +16,11 @@ void main() {
       header.version = (3, 1);
       expect(header.version, (3, 1));
 
-      header.masterSeed = [1, 1, 1, 1];
-      header.transformSeed = [2, 2, 2, 2];
-      header.streamStartBytes = [3, 3, 3, 3];
-      header.protectedStreamKey = [4, 4, 4, 4];
-      header.encryptionIV = [5, 5];
+      header.masterSeed = Uint8List.fromList([1, 1, 1, 1]);
+      header.transformSeed = Uint8List.fromList([2, 2, 2, 2]);
+      header.streamStartBytes = Uint8List.fromList([3, 3, 3, 3]);
+      header.protectedStreamKey = Uint8List.fromList([4, 4, 4, 4]);
+      header.encryptionIV = Uint8List.fromList([5, 5]);
 
       final bytes = header.bytes;
       final reader = BytesReader(bytes);
@@ -47,11 +49,11 @@ void main() {
           ProtectedBinary(protectedData: ProtectedData.fromBytes([1, 2, 3])));
 
       expect(header.version, (4, 1));
-      header.masterSeed = [1, 1, 1, 1];
-      header.transformSeed = [2, 2, 2, 2];
-      header.streamStartBytes = [3, 3, 3, 3];
-      header.protectedStreamKey = [4, 4, 4, 4];
-      header.encryptionIV = [5, 5];
+      header.masterSeed = Uint8List.fromList([1, 1, 1, 1]);
+      header.transformSeed = Uint8List.fromList([2, 2, 2, 2]);
+      header.streamStartBytes = Uint8List.fromList([3, 3, 3, 3]);
+      header.protectedStreamKey = Uint8List.fromList([4, 4, 4, 4]);
+      header.encryptionIV = Uint8List.fromList([5, 5]);
       header.kdfParameters!.add(
         key: 'S',
         type: ParameterType.bytes,
@@ -137,13 +139,13 @@ void main() {
     test('skips binaries for v3', () {
       final credentials = KdbxCredentials();
       final header = KdbxHeader.create(credentials: credentials);
-      header.masterSeed = [];
-      header.encryptionIV = [];
+      header.masterSeed = Uint8List(0);
+      header.encryptionIV = Uint8List(0);
       header.binaries.add(PlainBinary(data: [1], compressed: false));
       header.version = (3, 1);
-      header.transformSeed = [];
-      header.protectedStreamKey = [];
-      header.streamStartBytes = [];
+      header.transformSeed = Uint8List(0);
+      header.protectedStreamKey = Uint8List(0);
+      header.streamStartBytes = Uint8List(0);
 
       final newHeader = KdbxHeader.fromBytes(
           credentials: credentials, reader: BytesReader(header.bytes));

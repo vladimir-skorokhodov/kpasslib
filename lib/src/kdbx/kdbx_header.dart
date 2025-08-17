@@ -63,22 +63,22 @@ class KdbxHeader {
   var compression = CompressionAlgorithm.gzip;
 
   /// The master seed bytes.
-  List<int>? masterSeed;
+  Uint8List? masterSeed;
 
   /// The transform seed bytes.
-  List<int>? transformSeed;
+  Uint8List? transformSeed;
 
   /// The number of encryption rounds.
   int? keyEncryptionRounds;
 
   /// The encryption initial bytes.
-  List<int>? encryptionIV;
+  Uint8List? encryptionIV;
 
   /// The protected stream key bytes.
-  List<int>? protectedStreamKey;
+  Uint8List? protectedStreamKey;
 
   /// The stream start bytes.
-  List<int>? streamStartBytes;
+  Uint8List? streamStartBytes;
 
   /// The CRS algorithm.
   CrsAlgorithm? crsAlgorithm;
@@ -150,7 +150,7 @@ class KdbxHeader {
   }
 
   /// The header as bytes list.
-  List<int> get bytes {
+  Uint8List get bytes {
     final writer = BytesWriter();
 
     _validate();
@@ -182,7 +182,7 @@ class KdbxHeader {
   }
 
   /// The inner header as bytes list.
-  List<int> get innerBytes {
+  Uint8List get innerBytes {
     final writer = BytesWriter();
 
     _validateInner();
@@ -270,9 +270,9 @@ class KdbxHeader {
     final credHash = credentials.hash;
     final challengeResponse = credentials.getChallengeResponse(masterSeed);
 
-    final keyHash = KeyEncryptorAes.transform(
+    final keyHash = await KeyEncryptorAes.transform(
+      aes: Crypto.engine.createAes256(key: transformSeed),
       data: credHash,
-      seed: transformSeed,
       rounds: rounds,
     );
     CryptoUtils.wipeData(credHash);
@@ -288,7 +288,8 @@ class KdbxHeader {
   }
 
   /// Returns the master key for KDBX version 4.x.
-  (List<int>, List<int>, List<int>) computeKeysV4([List<int>? source]) {
+  Future<(List<int>, List<int>, List<int>)> computeKeysV4(
+      [List<int>? source]) async {
     final seed = masterSeed;
     if (seed == null || seed.length != 32) {
       throw FileCorruptedError('bad master seed');
@@ -309,7 +310,7 @@ class KdbxHeader {
 
     final credHash = credentials.getHash(challenge: kdfSalt);
     final encKey =
-        KeyEncryptorKdf.encrypt(data: credHash, parameters: kdfParams);
+        await KeyEncryptorKdf.encrypt(data: credHash, parameters: kdfParams);
     CryptoUtils.wipeData(credHash);
     if (encKey.length != 32) {
       throw FileCorruptedError('bad derived key');
@@ -339,7 +340,7 @@ class KdbxHeader {
       throw InvalidStateError('insufficient header parameters');
     }
 
-    return ProtectSaltGenerator.fromKey(key: key, algorithm: algo);
+    return ProtectSaltGenerator(key: key, algorithm: algo);
   }
 
   _writeBinaries(BytesWriter writer) {
@@ -506,8 +507,7 @@ class KdbxHeader {
   }
 
   _readBinary(List<int> bytes) {
-    final view = ByteData.view(Uint8List.fromList(bytes).buffer);
-    final isProtected = view.getUint8(0) & 0x1 != 0;
+    final isProtected = bytes.first.isEven;
     final data = bytes.slice(1); // Actual data comes after the flag byte
 
     final binary = isProtected

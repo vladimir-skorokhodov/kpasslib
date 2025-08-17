@@ -99,16 +99,6 @@ enum CrsAlgorithm {
   final int value;
 }
 
-/// Type of argon algorithm.
-enum Argon2Type {
-  argon2d(0),
-  argon2id(2);
-
-  const Argon2Type(this.value);
-
-  final int value;
-}
-
 /// Various default constants.
 abstract final class Defaults {
   static const recycleBinName = 'Recycle Bin';

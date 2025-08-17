@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
@@ -684,7 +683,7 @@ void main() {
           password: ProtectedData.fromString('demo'), keyData: keyFile);
       var db = KdbxDatabase.create(credentials: credentials, name: 'example');
 
-      final keyFileStr = utf8.decode(Uint8List.fromList(keyFile));
+      final keyFileStr = utf8.decode(keyFile);
       expect(keyFileStr.contains('<Version>2.0</Version>'), true);
 
       final ab = await db.save();
