@@ -29,7 +29,7 @@ abstract class KdbxBinary {
       return BinaryReference(id);
     }
 
-    var bytes = base64.decode(element.innerText).toList();
+    var bytes = base64.decode(element.innerText);
     final compressed =
         XmlUtils.getBooleanAttribute(element, XmlAttr.compressed);
 

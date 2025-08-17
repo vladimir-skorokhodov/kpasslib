@@ -1,6 +1,8 @@
 /// A library to read, modify and write KDBX file format.
 library;
 
+export 'src/crypto/aes.dart';
+export 'src/crypto/crypto_engine.dart';
 export 'src/crypto/crypto_utils.dart';
 export 'src/crypto/protected_value.dart';
 export 'src/kdbx/constants.dart';

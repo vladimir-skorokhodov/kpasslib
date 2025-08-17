@@ -11,7 +11,7 @@ void main() {
     final data = hex.decode(
         '5d18f8a5ae0e7ea86f0ad817f0c0d40656ef1da6367d8a88508b3c13cec0d7af');
 
-    test('calls argon2 function', () {
+    test('calls argon2 function', () async {
       final params = ParametersMap()
         ..addAll([
           ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2d)),
@@ -26,9 +26,29 @@ void main() {
           ('V', ParameterType.uInt32, 0x13)
         ]);
 
-      final res = KeyEncryptorKdf.encrypt(data: data, parameters: params);
+      final res = await KeyEncryptorKdf.encrypt(data: data, parameters: params);
       expect(hex.encode(res),
           '37597075e9b6d90c492183bb56214b4d9eb04c4d0971fd11f929d1e4155dff32');
+    });
+
+    test('calls argon2id function', () async {
+      final params = ParametersMap()
+        ..addAll([
+          ('\$UUID', ParameterType.bytes, base64.decode(KdfId.argon2id)),
+          (
+            'S',
+            ParameterType.bytes,
+            List<int>.generate(32, (i) => i == 0 ? 42 : 0)
+          ),
+          ('P', ParameterType.uInt32, 2),
+          ('I', ParameterType.uInt64, 1),
+          ('M', ParameterType.uInt64, 16 * DataSize.kibi),
+          ('V', ParameterType.uInt32, 0x13)
+        ]);
+
+      final res = await KeyEncryptorKdf.encrypt(data: data, parameters: params);
+      expect(hex.encode(res),
+          '2aecd80625a328efb2029319b0b205ab3b7a9b60fbde1b46194e4f77933297a3');
     });
 
     test('throws error for no uuid', () {
@@ -215,7 +235,7 @@ void main() {
               e.message.contains('argon2 assoc data'))));
     });
 
-    test('calls aes function', () {
+    test('calls aes function', () async {
       final params = ParametersMap()
         ..addAll([
           ('\$UUID', ParameterType.bytes, base64.decode(KdfId.aes)),
@@ -228,7 +248,7 @@ void main() {
           ('R', ParameterType.uInt64, 2)
         ]);
 
-      final res = KeyEncryptorKdf.encrypt(
+      final res = await KeyEncryptorKdf.encrypt(
           data: hex.decode(
               'ee66af917de0b0336e659fe6bd40a337d04e3c2b3635210fa16f28fb24d563ac'),
           parameters: params);

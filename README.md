@@ -9,8 +9,7 @@ Ported and refactored from [KdbxWeb](https://github.com/keeweb/kdbxweb).
 
 ## Features
 
-- no native addons
-- encryption with [pointycastle](https://github.com/bcgit/pc-dart), [cryptography_plus](https://github.com/emz-hanauer/dart-cryptography) and [hashlib](https://github.com/bitanon/hashlib).
+- AES, ChaCha20, Salsa20 and Argon2 via optional Rust native library or in pure Dart
 - full support of KDBX features
 - protected values are stored in memory XOR'ed with a salt
 - conflict-free merge support
@@ -277,6 +276,60 @@ try {
 } on FileCorruptedError catch (e) {
   /// ...
 }
+```
+
+## Native crypto acceleration
+
+KPassLib includes an optional native library (`libkreepto`) implemented in Rust. It exposes FFI symbols for crypto primitives, and is used by Dart when available.
+
+The native library is **optional** — without it, KPassLib falls back to built-in pure Dart implementations.
+
+### Building the native library
+
+Requirements: Rust toolchain with `cargo`.
+
+```bash
+cd native/kreepto-rust
+cargo build --release
+```
+
+The produced library name depends on the platform:
+
+- macOS/iOS: `target/release/libkreepto.dylib`
+- Linux/Android: `target/release/libkreepto.so`
+- Windows: `target/release/kreepto.dll`
+
+### Using the native library
+
+```dart
+import 'package:kpasslib/kpasslib.dart';
+import 'package:kpasslib/src/crypto/ffi/crypto_ffi.dart';
+
+// Load native library
+Crypto.engine = CryptoFfi(DynamicLibrary.open('path/to/libkreepto.dylib'));
+
+final db = await KdbxDatabase.fromBytes(
+  data: fileBytes,
+  credentials: credentials,
+);
+
+final saved = await db.save(cryptoEngine: engine);
+```
+
+### Cross-compiling for Android or iOS
+
+Use the standard Rust cross-compilation workflow and appropriate targets, for example:
+
+```bash
+rustup target add aarch64-linux-android
+cargo build --release --target aarch64-linux-android
+```
+
+For iOS, add the target and build with the Apple toolchain:
+
+```bash
+rustup target add aarch64-apple-ios
+cargo build --release --target aarch64-apple-ios
 ```
 
 ## Running tests and generation of code coverage

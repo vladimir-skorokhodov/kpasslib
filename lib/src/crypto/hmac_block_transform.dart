@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
@@ -10,7 +11,7 @@ import '../utils/byte_utils.dart';
 // TODO: define constants for magic numbers
 abstract final class HmacBlockTransform {
   /// Returns encrypted [data].
-  static List<int> encrypt({
+  static Uint8List encrypt({
     required List<int> data,
     required List<int> key,
   }) {
@@ -37,7 +38,7 @@ abstract final class HmacBlockTransform {
   }
 
   /// Returns decrypted [data].
-  static List<int> decrypt({
+  static Uint8List decrypt({
     required List<int> data,
     required List<int> key,
   }) {

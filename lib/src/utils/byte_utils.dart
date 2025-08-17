@@ -52,7 +52,7 @@ class BytesReader {
   }
 
   /// Reads bytes sequence with [length].
-  List<int> readBytes(int length) {
+  Uint8List readBytes(int length) {
     if (_offset + length >= _data.lengthInBytes) {
       return readBytesToEnd();
     }
@@ -63,14 +63,14 @@ class BytesReader {
   }
 
   /// Reads remaining amount of bytes.
-  List<int> readBytesToEnd() {
+  Uint8List readBytesToEnd() {
     final result = _data.buffer.asUint8List(_offset);
     _offset = _data.lengthInBytes;
     return result;
   }
 
   /// The bytes were already read.
-  List<int> get past => _data.buffer.asUint8List(0, _offset).toList();
+  List<int> get past => _data.buffer.asUint8List(0, _offset);
 
   /// The remaining length of bytes.
   int get bytesLeft => _data.lengthInBytes - _offset;

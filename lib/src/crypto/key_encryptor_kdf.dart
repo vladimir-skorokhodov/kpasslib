@@ -1,19 +1,21 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
-import 'package:hashlib/hashlib.dart' as hashlib;
 import 'package:kpasslib/kpasslib.dart';
 
 import '../utils/parameters_map.dart';
+import 'argon2.dart';
 import 'key_encryptor_aes.dart';
 
 /// KDF encryption functions
 // TODO: define constants for magic numbers
 abstract final class KeyEncryptorKdf {
   /// Returns encrypted [data].
-  static List<int> encrypt({
+  // TODO: add definition of required data size
+  static Future<List<int>> encrypt({
     required List<int> data,
     required ParametersMap parameters,
-  }) {
+  }) async {
     final uuid = parameters.get('\$UUID');
 
     if (uuid is! List<int>) {
@@ -23,19 +25,17 @@ abstract final class KeyEncryptorKdf {
     final kdfUuid = base64.encode(uuid);
 
     return switch (kdfUuid) {
-      KdfId.argon2d =>
-        _encryptArgon2(data, parameters, hashlib.Argon2Type.argon2d),
-      KdfId.argon2id =>
-        _encryptArgon2(data, parameters, hashlib.Argon2Type.argon2id),
+      KdfId.argon2d => _encryptArgon2(data, parameters, Argon2Type.argon2d),
+      KdfId.argon2id => _encryptArgon2(data, parameters, Argon2Type.argon2id),
       KdfId.aes => _transformAes(data, parameters),
       _ => throw UnsupportedValueError('unknown KDF type')
     };
   }
 
-  static List<int> _encryptArgon2(
+  static Uint8List _encryptArgon2(
     List<int> data,
     ParametersMap kdfParams,
-    hashlib.Argon2Type argon2type,
+    Argon2Type argon2type,
   ) {
     final salt = kdfParams.get('S');
     if (salt is! List<int> || salt.length != 32) {
@@ -58,7 +58,7 @@ abstract final class KeyEncryptorKdf {
     }
 
     final v = kdfParams.get('V');
-    final version = hashlib.Argon2Version.values.firstWhere(
+    final version = Argon2Version.values.firstWhere(
       (version) => version.value == v,
       orElse: () => throw UnsupportedValueError('argon2 version'),
     );
@@ -71,20 +71,20 @@ abstract final class KeyEncryptorKdf {
       throw UnsupportedValueError('argon2 assoc data');
     }
 
-    final argon = hashlib.Argon2(
-      type: argon2type,
-      version: version,
-      parallelism: parallelism,
-      memorySizeKB: memory ~/ DataSize.kibi,
-      iterations: iterations,
-      salt: salt,
-    );
-
-    final digest = argon.convert(data);
-    return digest.bytes;
+    return Crypto.engine
+        .createArgon2(
+          type: argon2type,
+          version: version,
+          parallelism: parallelism,
+          memorySizeKB: memory ~/ DataSize.kibi,
+          iterations: iterations,
+          salt: salt,
+        )
+        .convert(data);
   }
 
-  static _transformAes(List<int> key, ParametersMap kdfParams) {
+  static Future<List<int>> _transformAes(
+      List<int> data, ParametersMap kdfParams) {
     final salt = kdfParams.get('S');
     if (salt is! List<int> || salt.length != 32) {
       throw FileCorruptedError('bad aes salt');
@@ -96,8 +96,8 @@ abstract final class KeyEncryptorKdf {
     }
 
     return KeyEncryptorAes.transform(
-      data: key,
-      seed: salt,
+      aes: Crypto.engine.createAes256(key: Uint8List.fromList(salt)),
+      data: Uint8List.fromList(data),
       rounds: rounds,
     );
   }

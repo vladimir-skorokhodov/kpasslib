@@ -11,14 +11,14 @@ import '../utils/byte_utils.dart';
 // TODO: define constants for magic numbers
 abstract final class HashedBlockTransform {
   /// Returns encrypted [data].
-  static List<int> encrypt(List<int> data) {
+  static Uint8List encrypt(List<int> data) {
     final reader = BytesReader(data);
     final writer = BytesWriter();
     var index = 0;
 
     while (reader.bytesLeft > 0) {
       final size = min(DataSize.mebi, reader.bytesLeft);
-      final data = Uint8List.fromList(reader.readBytes(size));
+      final data = reader.readBytes(size);
       writer.writeUint32(index++);
       writer.writeBytes(sha256.convert(data).bytes);
       writer.writeUint32(size);
@@ -32,7 +32,7 @@ abstract final class HashedBlockTransform {
   }
 
   /// Returns decrypted [data].
-  static List<int> decrypt(List<int> data) {
+  static Uint8List decrypt(List<int> data) {
     final reader = BytesReader(data);
     final builder = BytesBuilder();
 
@@ -42,7 +42,7 @@ abstract final class HashedBlockTransform {
     }
 
     for (var (hash, size) = next(); size > 0; (hash, size) = next()) {
-      final data = Uint8List.fromList(reader.readBytes(size));
+      final data = reader.readBytes(size);
       builder.add(data);
 
       if (!ListEquality().equals(hash, sha256.convert(data).bytes)) {
