@@ -1,5 +1,12 @@
 # KPassLib changelog
 
+## 1.1.0
+
+- Improved cryptography performance.
+- Added pure Dart implementations of AES, ChaCha20, Salsa20, and Argon2.
+- Added Rust implementations of AES, ChaCha20, and Salsa20, and integrated them using FFI.
+- Removed third-party dependencies for cryptographic operations.
+
 ## 1.0.8
 
 - Fixed _KdbxDatabase.getGroup()_ method.
