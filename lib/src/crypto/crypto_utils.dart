@@ -6,7 +6,7 @@ abstract final class CryptoUtils {
   static const _byteRange = 1 << 8;
 
   /// Overwrites the [data] buffer with random bytes.
-  static wipeData(List<int>? data) {
+  static void wipeData(List<int>? data) {
     data?.setAll(0, randomBytes(data.length));
   }
 

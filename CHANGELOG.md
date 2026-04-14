@@ -1,5 +1,9 @@
 # KPassLib changelog
 
+## 1.1.1
+
+- General improvements.
+
 ## 1.1.0
 
 - Improved cryptography performance.

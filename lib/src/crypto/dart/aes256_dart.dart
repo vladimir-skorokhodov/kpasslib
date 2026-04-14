@@ -20,7 +20,7 @@ class Aes256Dart extends Aes256 {
       'e0323a0a4906245cc2d3ac629195e479e7c8376d8dd54ea96c56f4ea657aae08'
       'ba78252e1ca6b4c6e8dd741f4bbd8b8a703eb5664803f60e613557b986c11d9e'
       'e1f8981169d98e949b1e87e9ce5528df8ca1890dbfe6426841992d0fb054bb16';
-  static final _sbox = hex.decoder.convert(_sboxHex);
+  static final _sbox = Uint8List.fromList(hex.decode(_sboxHex));
 
   // Rcon
   static const _rcon = [
@@ -39,7 +39,7 @@ class Aes256Dart extends Aes256 {
       '47f11a711d29c5896fb7620eaa18be1bfc563e4bc6d279209adbc0fe78cd5af4'
       '1fdda8338807c731b11210592780ec5f60517fa919b54a0d2de57a9f93c99cef'
       'a0e03b4dae2af5b0c8ebbb3c83539961172b047eba77d626e169146355210c7d';
-  static final _invSbox = hex.decoder.convert(_invSboxHex);
+  static final _invSbox = Uint8List.fromList(hex.decode(_invSboxHex));
 
   // T-tables (fused SubBytes + ShiftRows + MixColumns)
   static final _te0 = _makeTe((s, xt, x3) => xt << 24 | s << 16 | s << 8 | x3);

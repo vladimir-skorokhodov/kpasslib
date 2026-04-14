@@ -190,13 +190,13 @@ class KdbxBinaries {
     return BinaryReference(id);
   }
 
-  /// Removes the [binary] by it's hash.
-  remove(KdbxDataBinary binary) => _map.removeWhere(
+  /// Removes the [binary] by its hash.
+  void remove(KdbxDataBinary binary) => _map.removeWhere(
         (key, value) => value == binary,
       );
 
   /// Removes all the binaries, not included into the [usedBinaries].
-  cleanup(List<BinaryReference> usedBinaries) {
+  void cleanup(List<BinaryReference> usedBinaries) {
     final ids = usedBinaries.map((b) => b.id).toSet();
     _map.removeWhere((id, _) => !ids.contains(id));
   }
@@ -209,7 +209,7 @@ class KdbxBinaries {
 
   /// Appends the binaries by reading XML [element].
   /// Decrypts protected data with salt generator from the [header].
-  readFromXml({
+  void readFromXml({
     required XmlElement element,
     required KdbxHeader header,
   }) {
