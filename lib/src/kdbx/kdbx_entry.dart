@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:kpasslib/kpasslib.dart';
 import 'package:xml/xml.dart';
 
+import '../crypto/crypto_utils.dart';
 import '../utils/merge_utils.dart';
 import '../utils/xml_utils.dart';
 import 'kdbx_autotype.dart';

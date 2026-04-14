@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:convert/convert.dart';
 import 'package:kpasslib/src/crypto/dart/aes256_dart.dart';
 import 'package:kpasslib/src/crypto/key_encryptor_aes.dart';
@@ -7,9 +9,9 @@ void main() {
   group('KeyEncryptorAes unit tests', () {
     final data = hex.decode(
         '5d18f8a5ae0e7ea86f0ad817f0c0d40656ef1da6367d8a88508b3c13cec0d7af');
-    final key = hex.decoder.convert(
+    final key = hex.decode(
         'ee66af917de0b0336e659fe6bd40a337d04e3c2b3635210fa16f28fb24d563ac');
-    final aes = Aes256Dart(key: key);
+    final aes = Aes256Dart(key: Uint8List.fromList(key));
 
     test('decrypts one round', () async {
       final res =

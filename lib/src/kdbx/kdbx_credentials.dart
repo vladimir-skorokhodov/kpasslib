@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
 import 'package:xml/xml.dart';
 
+import '../crypto/crypto_utils.dart';
 import '../utils/xml_utils.dart';
 
 /// A challenge response function type.
