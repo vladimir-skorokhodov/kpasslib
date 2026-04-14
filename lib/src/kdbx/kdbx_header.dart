@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:kpasslib/kpasslib.dart';
 
+import '../crypto/crypto_utils.dart';
 import '../crypto/hmac_block_transform.dart';
 import '../crypto/key_encryptor_aes.dart';
 import '../crypto/key_encryptor_kdf.dart';

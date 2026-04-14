@@ -8,10 +8,15 @@ import 'argon2.dart';
 import 'key_encryptor_aes.dart';
 
 /// KDF encryption functions
-// TODO: define constants for magic numbers
 abstract final class KeyEncryptorKdf {
+  static const int _saltLength = 32;
+  static const int _minParallelism = 1;
+  static const int _minIterations = 1;
+  static const int _minMemory = 1;
+  static const int _minRounds = 1;
+
   /// Returns encrypted [data].
-  // TODO: add definition of required data size
+  /// [data] must not be empty. For Argon2 and AES KDF, salt must be 32 bytes.
   static Future<List<int>> encrypt({
     required List<int> data,
     required ParametersMap parameters,
@@ -38,22 +43,23 @@ abstract final class KeyEncryptorKdf {
     Argon2Type argon2type,
   ) {
     final salt = kdfParams.get('S');
-    if (salt is! List<int> || salt.length != 32) {
+
+    if (salt is! List<int> || salt.length != _saltLength) {
       throw FileCorruptedError('bad argon2 salt');
     }
 
     final parallelism = kdfParams.get('P');
-    if (parallelism is! int || parallelism < 1) {
+    if (parallelism is! int || parallelism < _minParallelism) {
       throw FileCorruptedError('bad argon2 parallelism');
     }
 
     final iterations = kdfParams.get('I');
-    if (iterations is! int || iterations < 1) {
+    if (iterations is! int || iterations < _minIterations) {
       throw FileCorruptedError('bad argon2 iterations');
     }
 
     final memory = kdfParams.get('M');
-    if (memory is! int || memory < 1 || memory % DataSize.kibi != 0) {
+    if (memory is! int || memory < _minMemory || memory % DataSize.kibi != 0) {
       throw FileCorruptedError('bad argon2 memory');
     }
 
@@ -86,12 +92,12 @@ abstract final class KeyEncryptorKdf {
   static Future<List<int>> _transformAes(
       List<int> data, ParametersMap kdfParams) {
     final salt = kdfParams.get('S');
-    if (salt is! List<int> || salt.length != 32) {
+    if (salt is! List<int> || salt.length != _saltLength) {
       throw FileCorruptedError('bad aes salt');
     }
 
     final rounds = kdfParams.get('R');
-    if (rounds is! int || rounds < 1) {
+    if (rounds is! int || rounds < _minRounds) {
       throw FileCorruptedError('bad aes rounds');
     }
 

@@ -12,7 +12,7 @@
 # The core lints are also what is used by pub.dev for scoring packages.
 
 # include: package:flutter_lints/flutter.yaml
-include: package:lints/recommended.yaml
+include: package:lints/core.yaml
 
 # Uncomment the following section to specify additional rules.
 

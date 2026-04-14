@@ -6,8 +6,10 @@ import 'package:test/test.dart';
 void main() {
   group('ProtectSaltGenerator unit tests', () {
     test('generates random sequences with Salsa20', () {
-      final gen =
-          ProtectSaltGenerator(key: [1, 2, 3], algorithm: CrsAlgorithm.salsa20);
+      final gen = ProtectSaltGenerator(
+        key: [1, 2, 3],
+        algorithm: CrsAlgorithm.salsa20,
+      );
       var bytes = gen.getSalt(0);
       expect(bytes.length, 0);
       bytes = gen.getSalt(10);
@@ -20,7 +22,9 @@ void main() {
 
     test('generates random sequences with ChaCha20', () {
       final gen = ProtectSaltGenerator(
-          key: [1, 2, 3], algorithm: CrsAlgorithm.chaCha20);
+        key: [1, 2, 3],
+        algorithm: CrsAlgorithm.chaCha20,
+      );
       var bytes = gen.getSalt(0);
       expect(bytes.length, 0);
       bytes = gen.getSalt(10);
@@ -34,7 +38,9 @@ void main() {
     test('fails if the algorithm is not supported', () {
       expect(
           () => ProtectSaltGenerator(
-              key: [1, 2, 3], algorithm: CrsAlgorithm.none),
+                key: [1, 2, 3],
+                algorithm: CrsAlgorithm.none,
+              ),
           throwsA(predicate((e) =>
               e is UnsupportedValueError &&
               e.message.contains('crsAlgorithm'))));

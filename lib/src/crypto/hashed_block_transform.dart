@@ -8,8 +8,11 @@ import 'package:kpasslib/kpasslib.dart';
 import '../utils/byte_utils.dart';
 
 /// Hashed block transformation functions
-// TODO: define constants for magic numbers
 abstract final class HashedBlockTransform {
+  static const int _blockSize = DataSize.mebi;
+  static const int _hashSize = 32;
+  static const int _endBlockSize = 0;
+
   /// Returns encrypted [data].
   static Uint8List encrypt(List<int> data) {
     final reader = BytesReader(data);
@@ -17,7 +20,7 @@ abstract final class HashedBlockTransform {
     var index = 0;
 
     while (reader.bytesLeft > 0) {
-      final size = min(DataSize.mebi, reader.bytesLeft);
+      final size = min(_blockSize, reader.bytesLeft);
       final data = reader.readBytes(size);
       writer.writeUint32(index++);
       writer.writeBytes(sha256.convert(data).bytes);
@@ -26,8 +29,8 @@ abstract final class HashedBlockTransform {
     }
 
     writer.writeUint32(index);
-    writer.writeBytes(Uint8List(32));
-    writer.writeUint32(0);
+    writer.writeBytes(Uint8List(_hashSize));
+    writer.writeUint32(_endBlockSize);
     return writer.bytes;
   }
 
@@ -38,7 +41,10 @@ abstract final class HashedBlockTransform {
 
     next() {
       reader.readUint32(); // block index
-      return (reader.readBytes(32), reader.readUint32()); //hash and size
+      return (
+        reader.readBytes(_hashSize),
+        reader.readUint32()
+      ); // hash and size
     }
 
     for (var (hash, size) = next(); size > 0; (hash, size) = next()) {

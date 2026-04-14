@@ -8,8 +8,10 @@ import 'package:kpasslib/kpasslib.dart';
 import '../utils/byte_utils.dart';
 
 /// HMAC block transformation functions
-// TODO: define constants for magic numbers
 abstract final class HmacBlockTransform {
+  static const int _blockSize = DataSize.mebi;
+  static const int _hashSize = 32;
+
   /// Returns encrypted [data].
   static Uint8List encrypt({
     required List<int> data,
@@ -27,7 +29,7 @@ abstract final class HmacBlockTransform {
     }
 
     while (reader.bytesLeft > 0) {
-      final size = min(DataSize.mebi, reader.bytesLeft);
+      final size = min(_blockSize, reader.bytesLeft);
       final blockData = reader.readBytes(size);
       writeBlock(blockData);
     }
@@ -46,7 +48,7 @@ abstract final class HmacBlockTransform {
     final writer = BytesWriter();
     var index = 0;
 
-    next() => (reader.readBytes(32), reader.readUint32());
+    next() => (reader.readBytes(_hashSize), reader.readUint32());
 
     for (var (hash, size) = next(); size > 0; (hash, size) = next()) {
       final blockData = reader.readBytes(size);
