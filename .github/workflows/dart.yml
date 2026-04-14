@@ -23,11 +23,22 @@ jobs:
       - name: Analyze project source
         run: dart analyze
 
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build native Rust library
+        run: ./native/kreepto-rust/build.sh
+
       - name: Install coverage
         run: dart pub global activate coverage
 
       - name: Run tests and report coverage
         run: dart pub global run coverage:test_with_coverage
+
+      - name: Generate LCOV report
+        run: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
 
       - name: Upload coverage
         uses: coverallsapp/github-action@master
