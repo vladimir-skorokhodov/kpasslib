@@ -23,6 +23,14 @@ jobs:
       - name: Analyze project source
         run: dart analyze
 
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build native Rust library
+        run: ./native/kreepto-rust/build.sh
+
       - name: Install coverage
         run: dart pub global activate coverage
 
