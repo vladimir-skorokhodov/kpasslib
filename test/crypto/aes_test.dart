@@ -7,7 +7,6 @@ import 'package:convert/convert.dart';
 import 'package:kpasslib/kpasslib.dart';
 import 'package:kpasslib/src/crypto/crypto_utils.dart';
 import 'package:kpasslib/src/crypto/dart/crypto_dart.dart';
-import 'package:kpasslib/src/crypto/ffi/crypto_ffi.dart';
 import 'package:test/test.dart';
 
 import '../test_resources.dart';

@@ -303,7 +303,7 @@ The produced library name depends on the platform:
 
 ```dart
 import 'package:kpasslib/kpasslib.dart';
-import 'package:kpasslib/src/crypto/ffi/crypto_ffi.dart';
+import 'dart:ffi';
 
 // Load native library
 Crypto.engine = CryptoFfi(DynamicLibrary.open('path/to/libkreepto.dylib'));
@@ -313,7 +313,7 @@ final db = await KdbxDatabase.fromBytes(
   credentials: credentials,
 );
 
-final saved = await db.save(cryptoEngine: engine);
+final saved = await db.save();
 ```
 
 ### Cross-compiling for Android or iOS
