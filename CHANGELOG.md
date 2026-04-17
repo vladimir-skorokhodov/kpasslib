@@ -1,5 +1,9 @@
 # KPassLib changelog
 
+## 1.1.2
+
+- Exported `CryptoFfi` from main library import.
+
 ## 1.1.1
 
 - General improvements.

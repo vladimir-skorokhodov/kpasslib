@@ -2,6 +2,7 @@
 library;
 
 export 'src/crypto/crypto_engine.dart';
+export 'src/crypto/ffi/crypto_ffi.dart';
 export 'src/crypto/protected_value.dart';
 export 'src/kdbx/constants.dart';
 export 'src/kdbx/kdbx_binaries.dart';
