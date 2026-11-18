@@ -1,4 +1,5 @@
 import 'package:kpasslib/src/kdbx/kdbx_custom_data.dart';
+import 'package:kpasslib/src/kdbx/kdbx_time.dart';
 import 'package:kpasslib/src/utils/xml_utils.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
@@ -57,6 +58,26 @@ void main() {
     test('writes no custom data to xml', () {
       final cd = KdbxCustomData();
       expect(cd.toXml(includeModificationTime: false), null);
+    });
+
+    test('writes modification time in binary or ISO 8601 format', () {
+      final modTime = DateTime.utc(2021, 1, 20, 18, 10, 44);
+      final cd = KdbxCustomData()
+        ..map = {
+          'k': KdbxCustomItem(value: 'v', modification: KdbxTime(modTime))
+        };
+
+      final binaryXml =
+          cd.toXml(includeModificationTime: true, binaryTime: true)!;
+      final binaryMod =
+          binaryXml.findAllElements('LastModificationTime').single.innerText;
+      expect(binaryMod, KdbxTime(modTime).toXmlText(isBinary: true));
+
+      final textXml =
+          cd.toXml(includeModificationTime: true, binaryTime: false)!;
+      final textMod =
+          textXml.findAllElements('LastModificationTime').single.innerText;
+      expect(textMod, modTime.toIso8601String());
     });
   });
 }

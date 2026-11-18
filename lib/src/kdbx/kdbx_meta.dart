@@ -228,7 +228,10 @@ class KdbxMeta {
         ],
         binaryTime: binaryTime);
 
-    metaNode.children.addAll([_getMemoryProtection(), _getCustomIcons(header)]);
+    metaNode.children.addAll([
+      _getMemoryProtection(),
+      _getCustomIcons(header, binaryTime: binaryTime),
+    ]);
 
     XmlUtils.addChildren(
         parent: metaNode,
@@ -246,7 +249,9 @@ class KdbxMeta {
         binaryTime: binaryTime);
 
     final customDataNode = customData.toXml(
-        includeModificationTime: header.versionIsAtLeast(4, 1));
+      includeModificationTime: header.versionIsAtLeast(4, 1),
+      binaryTime: binaryTime,
+    );
 
     metaNode.children.addAll([
       if (exportXml || header.version.$1 < 4)
@@ -605,7 +610,7 @@ class KdbxMeta {
     }
   }
 
-  _getCustomIcons(KdbxHeader header) => XmlElement(
+  _getCustomIcons(KdbxHeader header, {required bool binaryTime}) => XmlElement(
         XmlName(XmlElem.customIcons),
         [],
         customIcons.entries.map(
@@ -619,7 +624,7 @@ class KdbxMeta {
                   (XmlElem.lastModTime, e.value.modified)
                 ]
               ],
-              binaryTime: true),
+              binaryTime: binaryTime),
         ),
       );
 }

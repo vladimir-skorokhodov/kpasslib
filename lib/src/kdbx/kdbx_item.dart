@@ -56,6 +56,7 @@ abstract class KdbxItem {
 
     final customDataNode = customData?.toXml(
       includeModificationTime: is41,
+      binaryTime: binaryTime,
     );
     final timesNode = times.toXml(isBinary: binaryTime);
 
