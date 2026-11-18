@@ -78,14 +78,25 @@ class KdbxTime {
       return DateTime.tryParse(string);
     }
 
-    try {
-      final seconds = BytesReader(base64.decode(string)).readInt64();
-      final secondsSinceEpoch = seconds - _epochSeconds;
-      return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000,
-          isUtc: true);
-    } on Exception {
-      return null;
+    // Some clients write empty time elements for absent KDBX 4 timestamps.
+    // Preserve the existing null representation rather than reading zero bytes.
+    if (string.isEmpty) return null;
+
+    // Some clients also write ISO 8601 text in KDBX 4 metadata. A colon
+    // cannot occur in base64, so this cannot be confused with binary time.
+    if (string.contains(':')) {
+      final textTime = DateTime.tryParse(string);
+      if (textTime != null) return textTime;
     }
+
+    final bytes = base64.decode(string);
+    if (bytes.length != 8) {
+      throw const FormatException('Invalid KDBX binary timestamp length');
+    }
+    final seconds = BytesReader(bytes).readInt64();
+    final secondsSinceEpoch = seconds - _epochSeconds;
+    return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000,
+        isUtc: true);
   }
 }
 
