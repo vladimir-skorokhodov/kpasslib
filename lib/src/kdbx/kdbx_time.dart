@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:kpasslib/kpasslib.dart';
 import 'package:xml/xml.dart';
@@ -74,18 +75,26 @@ class KdbxTime {
 
   static DateTime? _fromString(
       {required String string, required bool isBinary}) {
-    if (!isBinary) {
-      return DateTime.tryParse(string);
-    }
-
-    try {
-      final seconds = BytesReader(base64.decode(string)).readInt64();
-      final secondsSinceEpoch = seconds - _epochSeconds;
-      return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000,
-          isUtc: true);
-    } on Exception {
+    final trimmed = string.trim();
+    if (trimmed.isEmpty) {
       return null;
     }
+
+    if (isBinary) {
+      try {
+        final bytes = base64.decode(trimmed);
+        if (bytes.length == Int64List.bytesPerElement) {
+          final seconds = BytesReader(bytes).readInt64();
+          final secondsSinceEpoch = seconds - _epochSeconds;
+          return DateTime.fromMillisecondsSinceEpoch(
+            secondsSinceEpoch * 1000,
+            isUtc: true,
+          );
+        }
+      } catch (_) {}
+    }
+
+    return DateTime.tryParse(trimmed);
   }
 }
 
