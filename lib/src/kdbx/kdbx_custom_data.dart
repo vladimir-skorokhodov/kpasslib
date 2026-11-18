@@ -79,7 +79,7 @@ class KdbxCustomData {
     }
 
     return XmlElement(
-      XmlName(XmlElem.customData),
+      xmlName(XmlElem.customData),
       [],
       map.entries.map(
         (e) => XmlUtils.createElement(

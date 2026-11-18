@@ -1,5 +1,13 @@
 # KPassLib changelog
 
+## 1.1.3
+
+- Added KDBX 4 timestamp compatibility for empty and ISO 8601 values.
+- Fixed reading the `protected` flag for KDBX 4 binary attachments.
+- Fixed KDBX 3 XML element order (`Meta` before `Root`) to preserve protected fields when `ProtectedBinary` is present.
+- Respected `binaryTime` when serializing `LastModificationTime` in KDBX 4.1 `CustomData` and `CustomIcons`.
+- Extended `xml` dependency support to `>=6.2.2 <8.0.0` and updated dependencies.
+
 ## 1.1.2
 
 - Exported `CryptoFfi` from main library import.

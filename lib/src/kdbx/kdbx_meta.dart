@@ -611,7 +611,7 @@ class KdbxMeta {
   }
 
   _getCustomIcons(KdbxHeader header, {required bool binaryTime}) => XmlElement(
-        XmlName(XmlElem.customIcons),
+        xmlName(XmlElem.customIcons),
         [],
         customIcons.entries.map(
           (e) => XmlUtils.createElement(

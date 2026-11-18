@@ -64,9 +64,9 @@ class BinaryReference extends KdbxBinary {
   BinaryReference(this.id) : super._();
 
   /// Serializes binary to XML element for a KDBX entry field with [key].
-  XmlElement toXml(String key) => XmlElement(XmlName(XmlElem.binary), [], [
-        XmlElement(XmlName(XmlElem.key))..innerText = key,
-        XmlElement(XmlName(XmlElem.value))
+  XmlElement toXml(String key) => XmlElement(xmlName(XmlElem.binary), [], [
+        XmlElement(xmlName(XmlElem.key))..innerText = key,
+        XmlElement(xmlName(XmlElem.value))
           ..setAttribute(XmlAttr.ref, id.toString())
       ]);
 }
@@ -98,8 +98,8 @@ abstract class KdbxDataBinary extends KdbxBinary {
     required int id,
     KdbxHeader? header,
   }) =>
-      XmlElement(XmlName(XmlElem.binary), [
-        XmlAttribute(XmlName(XmlAttr.id), id.toString()),
+      XmlElement(xmlName(XmlElem.binary), [
+        XmlAttribute(xmlName(XmlAttr.id), id.toString()),
       ]);
 }
 
@@ -238,7 +238,7 @@ class KdbxBinaries {
   /// If [header] is not null, encrypts the protected values.
   XmlElement toXml(KdbxHeader? header) {
     return XmlElement(
-      XmlName(XmlElem.binaries),
+      xmlName(XmlElem.binaries),
       [],
       _map.entries.map((e) => e.value._toXml(id: e.key, header: header)),
     );

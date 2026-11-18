@@ -82,11 +82,11 @@ class KdbxCredentials {
     final versionString = version == 2 ? '2.0' : '1.00';
     final doc = XmlUtils.create('KeyFile', extraAttributes: '');
     final meta = XmlElement(
-      XmlName(XmlElem.meta),
+      xmlName(XmlElem.meta),
       [],
-      [XmlElement(XmlName(XmlElem.version))..innerText = versionString],
+      [XmlElement(xmlName(XmlElem.version))..innerText = versionString],
     );
-    final data = XmlElement(XmlName(XmlElem.data));
+    final data = XmlElement(xmlName(XmlElem.data));
 
     if (version == 1) {
       data.innerText = base64.encode(bytes);
@@ -101,11 +101,11 @@ class KdbxCredentials {
               .trim())
           .fold('', (prev, e) => '$prev\n      $e');
 
-      data.attributes.add(XmlAttribute(XmlName(XmlAttr.hash), hashString));
+      data.attributes.add(XmlAttribute(xmlName(XmlAttr.hash), hashString));
       data.innerText = '$keyString\n';
     }
 
-    final key = XmlElement(XmlName(XmlElem.key), [], [data]);
+    final key = XmlElement(xmlName(XmlElem.key), [], [data]);
     doc.rootElement.children.addAll([meta, key]);
 
     return utf8.encode(doc.toXmlString(

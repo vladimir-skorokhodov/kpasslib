@@ -59,7 +59,7 @@ abstract class KdbxTextField {
     required KdbxHeader header,
     required bool protectValues,
   }) {
-    final element = XmlElement(XmlName(XmlElem.value));
+    final element = XmlElement(xmlName(XmlElem.value));
     final field = this;
 
     if (field is PlainTextField) {
@@ -255,10 +255,10 @@ class KdbxEntry extends KdbxItem {
 
     final fieldsNodes = fields.entries.map((e) {
       return XmlElement(
-        XmlName(XmlElem.string),
+        xmlName(XmlElem.string),
         [],
         [
-          XmlElement(XmlName(XmlElem.key))..innerText = e.key,
+          XmlElement(xmlName(XmlElem.key))..innerText = e.key,
           e.value.toXml(header: header, protectValues: !exportXml),
         ],
       );
@@ -269,7 +269,7 @@ class KdbxEntry extends KdbxItem {
     );
 
     getHistory() => XmlElement(
-          XmlName(XmlElem.history),
+          xmlName(XmlElem.history),
           [],
           history.map(
             (e) => e.toXml(

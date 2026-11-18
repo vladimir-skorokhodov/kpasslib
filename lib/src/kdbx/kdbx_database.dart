@@ -583,7 +583,7 @@ class KdbxDatabase {
     );
 
     final deletedObjectsNode = XmlElement(
-      XmlName(XmlElem.deletedObjects),
+      xmlName(XmlElem.deletedObjects),
       [],
       deletedObjects.entries.map(
         (e) => XmlUtils.createElement(
@@ -597,7 +597,7 @@ class KdbxDatabase {
     );
 
     final rootNode = XmlElement(
-      XmlName(XmlElem.root),
+      xmlName(XmlElem.root),
       [],
       [
         ...groups.map((e) => e.toXml(
