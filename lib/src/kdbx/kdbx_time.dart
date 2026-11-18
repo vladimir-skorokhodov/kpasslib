@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:kpasslib/kpasslib.dart';
 import 'package:xml/xml.dart';
@@ -74,29 +75,26 @@ class KdbxTime {
 
   static DateTime? _fromString(
       {required String string, required bool isBinary}) {
-    if (!isBinary) {
-      return DateTime.tryParse(string);
+    final trimmed = string.trim();
+    if (trimmed.isEmpty) {
+      return null;
     }
 
-    // Some clients write empty time elements for absent KDBX 4 timestamps.
-    // Preserve the existing null representation rather than reading zero bytes.
-    if (string.isEmpty) return null;
-
-    // Some clients also write ISO 8601 text in KDBX 4 metadata. A colon
-    // cannot occur in base64, so this cannot be confused with binary time.
-    if (string.contains(':')) {
-      final textTime = DateTime.tryParse(string);
-      if (textTime != null) return textTime;
+    if (isBinary) {
+      try {
+        final bytes = base64.decode(trimmed);
+        if (bytes.length == Int64List.bytesPerElement) {
+          final seconds = BytesReader(bytes).readInt64();
+          final secondsSinceEpoch = seconds - _epochSeconds;
+          return DateTime.fromMillisecondsSinceEpoch(
+            secondsSinceEpoch * 1000,
+            isUtc: true,
+          );
+        }
+      } catch (_) {}
     }
 
-    final bytes = base64.decode(string);
-    if (bytes.length != 8) {
-      throw const FormatException('Invalid KDBX binary timestamp length');
-    }
-    final seconds = BytesReader(bytes).readInt64();
-    final secondsSinceEpoch = seconds - _epochSeconds;
-    return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000,
-        isUtc: true);
+    return DateTime.tryParse(trimmed);
   }
 }
 
