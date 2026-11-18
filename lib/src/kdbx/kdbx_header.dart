@@ -508,7 +508,7 @@ class KdbxHeader {
   }
 
   _readBinary(List<int> bytes) {
-    final isProtected = bytes.first.isEven;
+    final isProtected = bytes.first.isOdd;
     final data = bytes.slice(1); // Actual data comes after the flag byte
 
     final binary = isProtected

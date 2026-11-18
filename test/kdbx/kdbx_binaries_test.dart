@@ -98,5 +98,37 @@ void main() {
       expect(binaries.getByRef(ref3)?.data, [3]);
       expect(binaries.getByRef(ref4)?.data, [2]);
     });
+
+    test('preserves protected and plain binary flags across KDBX 4 round trips',
+        () async {
+      final credentials =
+          KdbxCredentials(password: ProtectedData.fromString('pw'));
+      final db = KdbxDatabase.create(credentials: credentials, name: 'test');
+      final entry = db.createEntry(parent: db.root);
+      entry.binaries['protected'] = db.binaries.add(
+        ProtectedBinary(protectedData: ProtectedData.fromString('secret')),
+      );
+      entry.binaries['plain'] = db.binaries.add(
+        PlainBinary(data: [1, 2, 3], compressed: false),
+      );
+
+      var current = db;
+      for (var round = 0; round < 2; round++) {
+        current = await KdbxDatabase.fromBytes(
+          data: await current.save(),
+          credentials: credentials,
+        );
+        final savedEntry = current.root.entries.single;
+        final savedProtected =
+            current.binaries.getByRef(savedEntry.binaries['protected']!);
+        final savedPlain =
+            current.binaries.getByRef(savedEntry.binaries['plain']!);
+
+        expect(savedProtected, isA<ProtectedBinary>());
+        expect(savedPlain, isA<PlainBinary>());
+        expect(savedProtected!.data, 'secret'.codeUnits);
+        expect(savedPlain!.data, [1, 2, 3]);
+      }
+    });
   });
 }
