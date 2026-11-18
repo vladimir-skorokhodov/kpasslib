@@ -576,6 +576,12 @@ class KdbxDatabase {
   }
 
   XmlDocument _buildXml({required bool exportXml, required bool binaryTime}) {
+    final metaNode = meta.toXml(
+      header: header,
+      exportXml: exportXml,
+      binaryTime: binaryTime,
+    );
+
     final deletedObjectsNode = XmlElement(
       XmlName(XmlElem.deletedObjects),
       [],
@@ -607,11 +613,7 @@ class KdbxDatabase {
     return XmlUtils.create(XmlElem.docNode)
       ..rootElement.children.addAll(
         [
-          meta.toXml(
-            header: header,
-            exportXml: exportXml,
-            binaryTime: binaryTime,
-          ),
+          metaNode,
           rootNode,
         ],
       );
