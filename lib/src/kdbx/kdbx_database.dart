@@ -59,7 +59,7 @@ class KdbxEditState {
       );
   }
 
-  _readEntry(XmlNode xmlNode) {
+  void _readEntry(XmlNode xmlNode) {
     KdbxUuid? id;
     KdbxEntryEditState? state;
 
@@ -240,7 +240,7 @@ class KdbxDatabase {
   }
 
   /// Upgrades the database to latest KDBX version.
-  upgrade() => version = KdbxHeader.defaultVersion;
+  (int, int) upgrade() => version = KdbxHeader.defaultVersion;
 
   /// Creates a new group with [name] and [icon] to a [parent].
   KdbxGroup createGroup({
@@ -282,7 +282,7 @@ class KdbxDatabase {
 
   /// Moves an [item] from parent group to a [target] group at [index] position.
   /// In case [target] is null, the [item] will be removed.
-  move({required KdbxItem item, KdbxGroup? target, int? index}) {
+  void move({required KdbxItem item, KdbxGroup? target, int? index}) {
     if (item is KdbxGroup && item.allGroups.contains(target)) {
       throw InvalidStateError('attempt to move a group to it\'s child');
     }
@@ -316,7 +316,7 @@ class KdbxDatabase {
 
   /// Removes an [item] from parent group.
   /// Depending on settings, removes either to recycle bin or completely.
-  remove(KdbxItem item) {
+  void remove(KdbxItem item) {
     final rb = recycleBin;
     final isInRecycleBin = rb != null && rb.allItems.contains(item);
     move(item: item, target: isInRecycleBin ? null : rb);
@@ -326,7 +326,7 @@ class KdbxDatabase {
   /// Removes extra [history] if it is true and doesn't match defined rules, e.g. records number.
   /// Remove unused custom [icons] if it is true.
   /// Remove unused [binaries] if it is true.
-  cleanup({
+  void cleanup({
     bool history = false,
     bool icons = false,
     bool binaries = false,
@@ -388,7 +388,7 @@ class KdbxDatabase {
   ///  - merge the remote into the local database: local.merge(remote);
   ///  - close the remote database.
   // TODO: check if any parts are copied by reference and copy it by value.
-  merge(KdbxDatabase remote) {
+  void merge(KdbxDatabase remote) {
     if (root.uuid != remote.root.uuid) {
       throw MergeError('root group is different');
     }
@@ -722,7 +722,7 @@ class KdbxDatabase {
   }
 
   /// Creates a root group, if it is absent.
-  _createRoot(String name) {
+  void _createRoot(String name) {
     if (_groups.isEmpty) {
       _groups.add(KdbxGroup.create(
         name: name,
@@ -760,7 +760,7 @@ class KdbxDatabase {
     return db;
   }
 
-  _parseRoot({required XmlDocument xml, required bool binaryTime}) {
+  void _parseRoot({required XmlDocument xml, required bool binaryTime}) {
     final doc = xml.rootElement;
 
     if (doc.name.local != XmlElem.docNode) {

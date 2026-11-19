@@ -63,7 +63,7 @@ void main() {
   });
 }
 
-_testZeroList(CryptoEngine engine) {
+void _testZeroList(CryptoEngine engine) {
   final key = Uint8List(32);
   final nonce = Uint8List(12);
   final plaintext = Uint8List(64);
@@ -78,7 +78,7 @@ _testZeroList(CryptoEngine engine) {
   expect(hex.encode(cipher), expectedHex);
 }
 
-_testRandomRoundtrip(CryptoEngine engine) {
+void _testRandomRoundtrip(CryptoEngine engine) {
   final data = CryptoUtils.randomBytes(500);
   final key = CryptoUtils.randomBytes(32);
   final nonce = CryptoUtils.randomBytes(12);
@@ -91,7 +91,7 @@ _testRandomRoundtrip(CryptoEngine engine) {
   expect(decrypted, data);
 }
 
-_testPartialLastBlock(CryptoEngine engine) {
+void _testPartialLastBlock(CryptoEngine engine) {
   final data = Uint8List(100);
   final key = Uint8List(32);
   final nonce = Uint8List(12);
@@ -104,7 +104,7 @@ _testPartialLastBlock(CryptoEngine engine) {
   expect(decrypted, data);
 }
 
-_testKdbxLoading(CryptoEngine engine) async {
+Future<void> _testKdbxLoading(CryptoEngine engine) async {
   Crypto.engine = engine;
   final credentials = KdbxCredentials(
       password: ProtectedData.fromString('demo'),

@@ -294,7 +294,7 @@ class KdbxEntry extends KdbxItem {
   }
 
   /// Inserts the current entry state to the history.
-  pushHistory() {
+  void pushHistory() {
     final historyEntry = KdbxEntry.copyFrom(this, uuid);
     history.add(historyEntry);
     _addHistoryTombstone(
@@ -305,7 +305,7 @@ class KdbxEntry extends KdbxItem {
 
   ///Removes the history records from [start] to [end].
   ///If end is null – removes a single record.
-  removeFromHistory({required int start, int? end}) {
+  void removeFromHistory({required int start, int? end}) {
     end ??= start + 1;
 
     for (var ix = start; ix < end; ix++) {
@@ -390,7 +390,7 @@ class KdbxEntry extends KdbxItem {
     return mergedMap.values.toList();
   }
 
-  _copyFrom(KdbxEntry other) {
+  void _copyFrom(KdbxEntry other) {
     icon = other.icon;
     customIcon = other.customIcon;
     foreground = other.foreground;
@@ -409,13 +409,14 @@ class KdbxEntry extends KdbxItem {
     autoType = KdbxAutoType.copyFrom(other.autoType);
   }
 
-  _addHistoryTombstone(_EditAction action, KdbxTime dt) => (switch (action) {
+  void _addHistoryTombstone(_EditAction action, KdbxTime dt) =>
+      (switch (action) {
         _EditAction.added => editState._added,
         _EditAction.deleted => editState._deleted,
       })
           .add(dt);
 
-  _readNode(XmlElement node, KdbxHeader header, bool binaryTime) {
+  void _readNode(XmlElement node, KdbxHeader header, bool binaryTime) {
     switch (node.qualifiedName) {
       case XmlElem.uuid:
         uuid = KdbxUuid.fromString(node.innerText);
@@ -450,7 +451,7 @@ class KdbxEntry extends KdbxItem {
     }
   }
 
-  _readField(XmlElement node, KdbxHeader header) {
+  void _readField(XmlElement node, KdbxHeader header) {
     String? key;
     KdbxTextField? value;
 
@@ -471,7 +472,7 @@ class KdbxEntry extends KdbxItem {
     }
   }
 
-  _readBinary(XmlElement element, KdbxHeader header) {
+  void _readBinary(XmlElement element, KdbxHeader header) {
     String? key;
     BinaryReference? value;
 
@@ -496,7 +497,7 @@ class KdbxEntry extends KdbxItem {
     }
   }
 
-  _readHistory(XmlElement node, KdbxHeader header, bool binaryTime) =>
+  void _readHistory(XmlElement node, KdbxHeader header, bool binaryTime) =>
       history.addAll(node.childElements
           .where((e) => e.qualifiedName == XmlElem.entry)
           .map((e) => KdbxEntry.fromXml(

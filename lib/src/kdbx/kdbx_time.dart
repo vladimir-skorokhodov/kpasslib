@@ -179,13 +179,13 @@ class KdbxTimes {
       );
 
   /// Updates the [modification] and [access] to the current moment of time.
-  touch() {
+  void touch() {
     final now = KdbxTime.now();
     modification = now;
     access = now;
   }
 
-  _readNode(XmlElement node, bool isBinary) {
+  void _readNode(XmlElement node, bool isBinary) {
     switch (node.qualifiedName) {
       case XmlElem.creationTime:
         creation =

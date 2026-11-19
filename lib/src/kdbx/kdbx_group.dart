@@ -155,7 +155,7 @@ class KdbxGroup extends KdbxItem {
   /// All the children items.
   List<KdbxItem> get children => [...entries, ...groups];
 
-  _copyFrom(KdbxGroup group) {
+  void _copyFrom(KdbxGroup group) {
     name = group.name;
     notes = group.notes;
     icon = group.icon;
@@ -169,7 +169,7 @@ class KdbxGroup extends KdbxItem {
     lastTopVisibleEntry = group.lastTopVisibleEntry;
   }
 
-  _readNode(XmlElement node, KdbxHeader header, bool binaryTime) {
+  void _readNode(XmlElement node, KdbxHeader header, bool binaryTime) {
     switch (node.qualifiedName) {
       case XmlElem.uuid:
         uuid = KdbxUuid.fromString(node.innerText);

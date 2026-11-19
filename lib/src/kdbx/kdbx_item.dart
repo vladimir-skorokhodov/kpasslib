@@ -41,7 +41,7 @@ abstract class KdbxItem {
       };
 
   /// Appends the item to the XML [node].
-  appendToXml({
+  void appendToXml({
     required XmlNode node,
     required bool is41,
     required bool binaryTime,
@@ -75,5 +75,5 @@ abstract class KdbxItem {
   });
 
   ///Merges remote [objectMap] to the item.
-  merge(MergeObjectMap objectMap);
+  void merge(MergeObjectMap objectMap);
 }

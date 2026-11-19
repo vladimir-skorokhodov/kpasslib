@@ -32,7 +32,7 @@ class TestResources {
   static var kdbx41 = <int>[];
   static var mergeKdbx = <int>[];
 
-  static init() async {
+  static Future<void> init() async {
     const assets = 'assets/test';
     demoKey = File('$assets/demo.key').readAsBytesSync();
     demoKdbx = File('$assets/demo.kdbx').readAsBytesSync();

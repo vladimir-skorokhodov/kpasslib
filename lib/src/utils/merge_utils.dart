@@ -17,7 +17,7 @@ abstract final class MergeUtils {
   /// Merge remote collection with [remoteParent] to the local one with [parent].
   /// Implements 2P-set CRDT with tombstones stored in objectMap.deleted.
   /// Assumes tombstones are already merged.
-  static mergeCollection({
+  static void mergeCollection({
     required KdbxGroup parent,
     required KdbxGroup remoteParent,
     required MergeObjectMap objectMap,

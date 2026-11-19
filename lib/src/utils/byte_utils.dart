@@ -81,45 +81,45 @@ class BytesWriter {
   final _builder = BytesBuilder();
 
   /// Writes unsigned 64-bit integer.
-  writeUint64(int value) {
+  void writeUint64(int value) {
     final data = ByteData(Uint64List.bytesPerElement)
       ..setUint64(0, value, Endian.little);
     _builder.add(data.buffer.asUint8List());
   }
 
   /// Writes signed 64-bit integer.
-  writeInt64(int value) {
+  void writeInt64(int value) {
     final data = ByteData(Int64List.bytesPerElement)
       ..setInt64(0, value, Endian.little);
     _builder.add(data.buffer.asUint8List());
   }
 
   /// Writes unsigned 32-bit integer.
-  writeUint32(int value) {
+  void writeUint32(int value) {
     final data = ByteData(Uint32List.bytesPerElement)
       ..setUint32(0, value, Endian.little);
     _builder.add(data.buffer.asUint8List());
   }
 
   /// Writes signed 32-bit integer.
-  writeInt32(int value) {
+  void writeInt32(int value) {
     final data = ByteData(Int32List.bytesPerElement)
       ..setInt32(0, value, Endian.little);
     _builder.add(data.buffer.asUint8List());
   }
 
   /// Writes unsigned 16-bit integer.
-  writeUint16(int value) {
+  void writeUint16(int value) {
     final data = ByteData(Uint16List.bytesPerElement)
       ..setUint16(0, value, Endian.little);
     _builder.add(data.buffer.asUint8List());
   }
 
   /// Writes unsigned 8-bit integer.
-  writeUint8(int value) => _builder.add([value]);
+  void writeUint8(int value) => _builder.add([value]);
 
   /// Writes list of the [bytes].
-  writeBytes(List<int> bytes) => _builder.add(bytes);
+  void writeBytes(List<int> bytes) => _builder.add(bytes);
 
   ///The result bytes sequence.
   Uint8List get bytes => _builder.toBytes(); //TODO: return without copy

@@ -398,7 +398,7 @@ class KdbxMeta {
   }
 
   ///Merges the [remote] meta into this meta.
-  merge(KdbxMeta remote) {
+  void merge(KdbxMeta remote) {
     if (remote.nameChanged.isAfter(nameChanged)) {
       _name = remote._name;
       nameChanged = remote.nameChanged;
@@ -473,7 +473,7 @@ class KdbxMeta {
     }
   }
 
-  _readNode(XmlElement node, KdbxHeader header, bool binaryTime) {
+  void _readNode(XmlElement node, KdbxHeader header, bool binaryTime) {
     switch (node.qualifiedName) {
       case XmlElem.generator:
         generator = node.innerText;
@@ -547,7 +547,7 @@ class KdbxMeta {
     }
   }
 
-  _readMemoryProtection(XmlElement node) {
+  void _readMemoryProtection(XmlElement node) {
     for (var element in node.childElements) {
       switch (element.qualifiedName) {
         case XmlElem.protTitle:
@@ -564,7 +564,7 @@ class KdbxMeta {
     }
   }
 
-  _getMemoryProtection() =>
+  XmlElement _getMemoryProtection() =>
       XmlUtils.createElement(name: XmlElem.memoryProtection, children: [
         (XmlElem.protTitle, memoryProtection.title),
         (XmlElem.protUserName, memoryProtection.userName),
@@ -573,7 +573,7 @@ class KdbxMeta {
         (XmlElem.protNotes, memoryProtection.notes)
       ]);
 
-  _readCustomIcons(XmlElement node) {
+  void _readCustomIcons(XmlElement node) {
     for (var element in node.childElements) {
       if (element.qualifiedName == XmlElem.customIconItem) {
         _readCustomIcon(element);
@@ -581,7 +581,7 @@ class KdbxMeta {
     }
   }
 
-  _readCustomIcon(XmlElement node) {
+  void _readCustomIcon(XmlElement node) {
     KdbxUuid? uuid;
     List<int>? data;
     String? name;
@@ -610,7 +610,8 @@ class KdbxMeta {
     }
   }
 
-  _getCustomIcons(KdbxHeader header, {required bool binaryTime}) => XmlElement(
+  XmlElement _getCustomIcons(KdbxHeader header, {required bool binaryTime}) =>
+      XmlElement(
         xmlName(XmlElem.customIcons),
         [],
         customIcons.entries.map(

@@ -69,7 +69,7 @@ abstract final class XmlUtils {
           '<?xml version="1.0" encoding="utf-8" $extraAttributes?><$rootNode/>');
 
   /// Appends the [children] to the [parent] XML node.
-  static addChildren({
+  static void addChildren({
     required XmlNode parent,
     required List<(String, Object?)> children,
     bool binaryTime = false,

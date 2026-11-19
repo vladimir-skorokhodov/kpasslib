@@ -29,7 +29,7 @@ class KdbxCredentials {
         _challengeResponse = challengeResponse;
 
   /// The hash of the credentials without challenge response.
-  get hash => getHash();
+  List<int> get hash => getHash();
 
   /// The hash of the credentials with optional [challenge] response.
   List<int> getHash({List<int>? challenge}) {

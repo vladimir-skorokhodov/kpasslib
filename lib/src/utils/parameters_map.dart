@@ -71,7 +71,7 @@ class ParametersMap {
   Object? get(String key) => _map[key]?.value;
 
   /// Appends a [Parameter] with [type] and [value] to the [key].
-  add({
+  void add({
     required String key,
     required ParameterType type,
     required Object value,
@@ -95,7 +95,7 @@ class ParametersMap {
   }
 
   /// Appends all the parameters from [list].
-  addAll(List<(String, ParameterType, Object)> list) {
+  void addAll(List<(String, ParameterType, Object)> list) {
     for (var item in list) {
       add(
         key: item.$1,
@@ -162,7 +162,7 @@ class ParametersMap {
     };
   }
 
-  _writeEntry(BytesWriter writer, MapEntry<String, Parameter> entry) {
+  void _writeEntry(BytesWriter writer, MapEntry<String, Parameter> entry) {
     writer.writeUint8(entry.value.type.id);
 
     final keyBytes = utf8.encode(entry.key);

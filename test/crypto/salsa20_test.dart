@@ -50,7 +50,7 @@ void main() {
   });
 }
 
-_testZeroList(dynamic engine) {
+void _testZeroList(dynamic engine) {
   final key = Uint8List(32);
   final nonce = Uint8List(8);
   final plaintext = Uint8List(64);
@@ -67,7 +67,7 @@ _testZeroList(dynamic engine) {
   expect(hex.encode(cipher), expectedHex);
 }
 
-_testRandomRoundtrip(dynamic engine) {
+void _testRandomRoundtrip(dynamic engine) {
   final data = Uint8List.fromList(List.generate(500, (i) => i & 0xFF));
   final key = Uint8List.fromList(List.generate(32, (i) => i & 0xFF));
   final nonce = Uint8List.fromList(List.generate(8, (i) => i & 0xFF));
@@ -80,7 +80,7 @@ _testRandomRoundtrip(dynamic engine) {
   expect(decrypted, data);
 }
 
-_testPartialLastBlock(dynamic engine) {
+void _testPartialLastBlock(dynamic engine) {
   final data = Uint8List(100);
   final key = Uint8List(32);
   final nonce = Uint8List(8);

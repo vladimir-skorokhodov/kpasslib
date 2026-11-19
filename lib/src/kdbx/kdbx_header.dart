@@ -145,7 +145,7 @@ class KdbxHeader {
       version.$1 > major || (version.$1 == major && version.$2 >= minor);
 
   /// Reads inner header from [reader] bytes.
-  readInnerHeader(BytesReader reader) {
+  void readInnerHeader(BytesReader reader) {
     while (_readField(reader, isInner: true)) {}
     _validateInner();
   }
@@ -202,7 +202,7 @@ class KdbxHeader {
   }
 
   /// Updates encryption values depending on version and parameters.
-  generateSalts() {
+  void generateSalts() {
     masterSeed = CryptoUtils.randomBytes(32);
     if (version.$1 < 4) {
       transformSeed = CryptoUtils.randomBytes(32);
@@ -344,7 +344,7 @@ class KdbxHeader {
     return ProtectSaltGenerator(key: key, algorithm: algo);
   }
 
-  _writeBinaries(BytesWriter writer) {
+  void _writeBinaries(BytesWriter writer) {
     for (final item in binaries.all) {
       final binary = item;
       final isProtected = binary is ProtectedBinary;
@@ -354,7 +354,7 @@ class KdbxHeader {
     }
   }
 
-  _writeField(BytesWriter writer, _HeaderField field, Object? value,
+  void _writeField(BytesWriter writer, _HeaderField field, Object? value,
       [bool errorOnNull = true]) {
     if (value == null) {
       if (errorOnNull) {
@@ -381,16 +381,16 @@ class KdbxHeader {
     write(value);
   }
 
-  _writeFieldSize(BytesWriter writer, int size) {
+  void _writeFieldSize(BytesWriter writer, int size) {
     version.$1 >= 4 ? writer.writeUint32(size) : writer.writeUint16(size);
   }
 
-  _writeSignature(BytesWriter writer) {
+  void _writeSignature(BytesWriter writer) {
     writer.writeUint32(Signatures.fileMagic);
     writer.writeUint32(Signatures.sig2Kdbx);
   }
 
-  _writeVersion(BytesWriter writer) {
+  void _writeVersion(BytesWriter writer) {
     writer.writeUint16(version.$2);
     writer.writeUint16(version.$1);
   }
@@ -425,7 +425,7 @@ class KdbxHeader {
     return parameters;
   }
 
-  static _readSignature(BytesReader reader) {
+  static void _readSignature(BytesReader reader) {
     if (reader.bytesLeft < 8) {
       throw FileCorruptedError('not enough data');
     }
@@ -438,7 +438,7 @@ class KdbxHeader {
     }
   }
 
-  _readVersion(BytesReader reader) {
+  void _readVersion(BytesReader reader) {
     final minor = reader.readUint16();
     final major = reader.readUint16();
     final v = (major, minor);
@@ -507,7 +507,7 @@ class KdbxHeader {
     return true;
   }
 
-  _readBinary(List<int> bytes) {
+  void _readBinary(List<int> bytes) {
     final isProtected = bytes.first.isOdd;
     final data = bytes.slice(1); // Actual data comes after the flag byte
 
@@ -518,7 +518,7 @@ class KdbxHeader {
     binaries.add(binary);
   }
 
-  _validate() {
+  void _validate() {
     if (dataCipherUuid == null) {
       throw FileCorruptedError('no cipher in header');
     }
@@ -566,7 +566,7 @@ class KdbxHeader {
     return CompressionAlgorithm.values[id];
   }
 
-  _validateInner() {
+  void _validateInner() {
     if (protectedStreamKey == null) {
       throw FileCorruptedError('no protected stream key in header');
     }
@@ -575,7 +575,7 @@ class KdbxHeader {
     }
   }
 
-  _setHash(List<int> data) {
+  void _setHash(List<int> data) {
     _hash = sha256.convert(data).bytes;
   }
 }
